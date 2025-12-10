@@ -1,27 +1,42 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
 import { useAuthStore } from "../store/useAuthStore";
-import api from "./api";
+import { auth } from "./firebase";
+import { UserService } from "./user.service";
 
 export const AuthService = {
   async login(email, password) {
-    const res = await api.post("/auth/login", { email, password });
+    const result = await signInWithEmailAndPassword(auth, email, password);
 
-    const user = res.data.user;
-    const token = res.data.token;
+    const user = {
+      id: result.user.uid,
+      email: result.user.email,
+    };
 
-    const { setUser, setToken } = useAuthStore.getState();
-
+    const { setUser } = useAuthStore.getState();
     setUser(user);
-    setToken(token);
 
     return user;
   },
 
   async register(email, password) {
-    const res = await api.post("/auth/register", { email, password });
-    return res.data;
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+
+    const uid = result.user.uid;
+
+    await UserService.createUser(uid, email);
+
+    return {
+      id: result.user.uid,
+      email: result.user.email,
+    };
   },
 
   async logout() {
+    await signOut(auth);
     const { logout } = useAuthStore.getState();
     logout();
   },

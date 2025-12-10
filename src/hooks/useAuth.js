@@ -12,11 +12,11 @@ export default function useAuth() {
       setError(null);
 
       const user = await AuthService.login(email, password);
+      router.replace("/(tabs)");
 
-      router.replace("/(tabs)"); // Login sonrası yönlendirme
       return user;
-    } catch (err) {
-      setError(err.response?.data?.message || "Giriş hatası");
+    } catch (e) {
+      setError("Giriş yapılamadı");
     } finally {
       setLoading(false);
     }
@@ -27,26 +27,18 @@ export default function useAuth() {
       setLoading(true);
       setError(null);
 
-      const result = await AuthService.register(email, password);
+      await AuthService.register(email, password);
       router.replace("/(auth)/login");
-
-      return result;
-    } catch (err) {
-      setError(err.response?.data?.message || "Kayıt hatası");
+    } catch (e) {
+      setError("Kayıt başarısız");
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    AuthService.logout();
-    router.replace("/(auth)/login");
-  };
-
   return {
     login,
     register,
-    logout,
     loading,
     error,
   };

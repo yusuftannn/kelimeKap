@@ -1,22 +1,26 @@
+import { collection, getDocs } from "firebase/firestore";
 import { useWordStore } from "../store/useWordStore";
-import api from "./api";
+import { db } from "./firebase";
 
 export const WordService = {
   async getWordsByLevel(level) {
-    const res = await api.get(`/words/${level}`);
+    const ref = collection(db, "words", level, "items"); 
+    const snap = await getDocs(ref);
+
+    const words = snap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
     const { setWords } = useWordStore.getState();
-    setWords(res.data.words);
+    setWords(words);
 
-    return res.data.words;
+    return words;
   },
 
   async saveWordToProfile(word) {
-    const res = await api.post(`/words/save`, { word });
-
     const { saveWord } = useWordStore.getState();
     saveWord(word);
-
-    return res.data;
+    return true;
   },
 };

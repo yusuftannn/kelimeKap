@@ -9,15 +9,10 @@ export default function useWords() {
 
   const loadWords = async () => {
     if (!level) return;
-    setLoading(true);
 
-    try {
-      await WordService.getWordsByLevel(level);
-    } catch (error) {
-      console.log("Kelime yükleme hatası:", error);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    await WordService.getWordsByLevel(level);
+    setLoading(false);
   };
 
   const goNext = () => {
@@ -28,15 +23,9 @@ export default function useWords() {
     }
   };
 
-  const restartLevel = () => {
-    resetWords();
-    router.push("/learn/word-card");
-  };
-
   return {
     loadWords,
     goNext,
-    restartLevel,
     words,
     currentIndex,
     loading,
