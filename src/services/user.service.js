@@ -1,4 +1,4 @@
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export const UserService = {
@@ -16,8 +16,35 @@ export const UserService = {
   },
 
   async updateLastLogin(uid) {
-    await setDoc(doc(db, "users", uid), {
-      lastLogin: serverTimestamp(),
-    }, { merge: true });
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        lastLogin: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  },
+
+  async getUser(uid) {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      return snap.data();
+    }
+
+    return null;
+  },
+
+  async updateLevel(uid, level) {
+    await updateDoc(doc(db, "users", uid), {
+      level: level,
+    });
+  },
+
+  async updateUsername(uid, username) {
+    await updateDoc(doc(db, "users", uid), {
+      username: username,
+    });
   }
 };
