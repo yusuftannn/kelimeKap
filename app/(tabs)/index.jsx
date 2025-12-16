@@ -5,16 +5,23 @@ import { useAuthStore } from "../../src/store/useAuthStore";
 
 export default function Home() {
   const level = useAuthStore((s) => s.user?.level);
+  const user = useAuthStore((s) => s.user);
+
+  const handleStart = () => {
+    if (!user?.level) {
+      router.replace("/level-select");
+      return;
+    }
+
+    router.push("/learn/word-card");
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Hazır mısın?</Text>
       <Text style={styles.subtitle}>Seviyen: {level}</Text>
 
-      <Button
-        title="Hemen Başla"
-        onPress={() => router.push("/learn/word-card")}
-      />
+      <Button title="Hemen Başla" onPress={handleStart} />
     </View>
   );
 }

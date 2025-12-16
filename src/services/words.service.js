@@ -1,26 +1,85 @@
-import { collection, getDocs } from "firebase/firestore";
-import { useWordStore } from "../store/useWordStore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  increment,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 export const WordService = {
+  // Level'a göre kelimeleri getir
   async getWordsByLevel(level) {
-    const ref = collection(db, "words", level, "items"); 
-    const snap = await getDocs(ref);
+    const q = query(
+      collection(db, "words"),
+      where("level", "==", level)
+    );
 
-    const words = snap.docs.map((doc) => ({
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
-
-    const { setWords } = useWordStore.getState();
-    setWords(words);
-
-    return words;
   },
 
-  async saveWordToProfile(word) {
-    const { saveWord } = useWordStore.getState();
-    saveWord(word);
-    return true;
+  // userWords var mı kontrol et, yoksa oluştur
+  async getOrCreateUserWord(userId, wordId) {
+    const q = query(
+      collection(db, "userWords"),
+      where("userId", "==", userId),
+      where("wordId", "==", wordId)
+    );
+
+    const snap = await getDocs(q);
+
+    if (!snap.empty) {
+      // varsa mevcut doc id
+      return snap.docs[0].id;
+    }
+
+    // yoksa oluştur
+    const ref = await addDoc(collection(db, "userWords"), {
+      userId,
+      wordId,
+      correctCount: 0,
+      wrongCount: 0,
+      saved: false,
+      status: "",
+      lastSeenAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+
+    return ref.id;
+  },
+
+  // Biliyorum
+  async markCorrect(userWordId) {
+    await updateDoc(doc(db, "userWords", userWordId), {
+      correctCount: increment(1),
+      lastSeenAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  },
+
+  // Bilmiyorum
+  async markWrong(userWordId) {
+    await updateDoc(doc(db, "userWords", userWordId), {
+      wrongCount: increment(1),
+      lastSeenAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  },
+
+  // Kaydet
+  async toggleSaved(userWordId, saved) {
+    await updateDoc(doc(db, "userWords", userWordId), {
+      saved,
+      updatedAt: serverTimestamp(),
+    });
   },
 };

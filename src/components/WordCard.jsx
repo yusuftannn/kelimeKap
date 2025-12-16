@@ -1,58 +1,41 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from "react-native-reanimated";
 
-export default function WordCard({ front, back }) {
+export default function WordCard({ front, back, exampleEn, exampleTr }) {
   const [flipped, setFlipped] = useState(false);
 
-  const rotate = useSharedValue(0);
-
-  const flipCard = () => {
-    rotate.value = withTiming(flipped ? 0 : 180, { duration: 250 });
-    setFlipped(!flipped);
-  };
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [
-        {
-          rotateY: `${rotate.value}deg`,
-        },
-      ],
-    };
-  });
-
   return (
-    <Pressable onPress={flipCard}>
-      <Animated.View style={[styles.card, animatedStyle]}>
-        <View style={styles.inner}>
-          <Text style={styles.word}>{flipped ? back : front}</Text>
-        </View>
-      </Animated.View>
+    <Pressable onPress={() => setFlipped(!flipped)}>
+      <View style={styles.card}>
+        <Text style={styles.word}>{flipped ? back : front}</Text>
+
+        {flipped && exampleTr && (
+          <Text style={styles.example}>{exampleTr}</Text>
+        )}
+        {!flipped && exampleEn && (
+          <Text style={styles.example}>{exampleEn}</Text>
+        )}
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    width: "100%",
     backgroundColor: "#FFF",
+    padding: 40,
     borderRadius: 16,
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-    elevation: 4,
-  },
-
-  inner: {
     alignItems: "center",
+    elevation: 3,
   },
-
   word: {
     fontSize: 32,
     fontWeight: "700",
+    marginBottom: 10,
+  },
+  example: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
   },
 });
