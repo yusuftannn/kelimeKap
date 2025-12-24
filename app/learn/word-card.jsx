@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import Button from "../../src/components/Button";
@@ -6,8 +6,10 @@ import WordCard from "../../src/components/WordCard";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
+
 export default function WordCardScreen() {
   const user = useAuthStore((s) => s.user);
+  const { mode } = useLocalSearchParams();
 
   const [words, setWords] = useState([]);
   const [index, setIndex] = useState(0);
@@ -25,10 +27,16 @@ export default function WordCardScreen() {
 
   const loadWords = async () => {
     try {
-      const data = await WordService.getWordsByLevel(user.level);
+      let data = [];
+
+      if (mode === "saved") {
+        data = await WordService.getSavedWordsForStudy(user.id);
+      } else {
+        data = await WordService.getWordsByLevel(user.level);
+      }
 
       if (!data || data.length === 0) {
-        setError("Bu seviye için kelime bulunamadı.");
+        setError("Çalışılacak kelime bulunamadı.");
         return;
       }
 

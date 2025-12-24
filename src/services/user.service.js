@@ -1,4 +1,10 @@
-import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "./firebase";
 
 export const UserService = {
@@ -36,15 +42,10 @@ export const UserService = {
     return null;
   },
 
-  async updateLevel(uid, level) {
+  async updateProfile(uid, data) {
     await updateDoc(doc(db, "users", uid), {
-      level: level,
+      ...data,
+      updatedAt: serverTimestamp(),
     });
   },
-
-  async updateUsername(uid, username) {
-    await updateDoc(doc(db, "users", uid), {
-      username: username,
-    });
-  }
 };

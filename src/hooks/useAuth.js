@@ -21,6 +21,7 @@ export default function useAuth() {
       useAuthStore.getState().setUser({
         id: uid,
         email: result.email,
+        name: userData?.name ?? "",
         level: userData?.level ?? null,
         username: userData?.username ?? null,
       });
