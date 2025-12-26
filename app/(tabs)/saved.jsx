@@ -8,6 +8,7 @@ import {
   View,
 } from "react-native";
 import Button from "../../src/components/Button";
+import PageHeader from "../../src/components/PageHeader";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
@@ -54,31 +55,34 @@ export default function Saved() {
   }
 
   return (
-    <View style={styles.container}>
-      <Button
-        title="Kaydedilenlerden Tekrar Çalış"
-        onPress={() => router.push("/learn/word-card?mode=saved")}
-      />
-      <FlatList
-        data={words}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.en}>{item.en}</Text>
-            <Text style={styles.tr}>{item.tr}</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader title="Kaydedilenler" />
+      <View style={styles.container}>
+        <Button
+          title="Kaydedilenlerden Tekrar Çalış"
+          onPress={() => router.push("/learn/word-card?mode=saved")}
+        />
+        <FlatList
+          data={words}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.en}>{item.en}</Text>
+              <Text style={styles.tr}>{item.tr}</Text>
 
-            {item.example_tr && (
-              <Text style={styles.example}>{item.example_tr}</Text>
-            )}
+              {item.example_tr && (
+                <Text style={styles.example}>{item.example_tr}</Text>
+              )}
 
-            <Button
-              title="Kaydı Kaldır"
-              variant="secondary"
-              onPress={() => handleRemove(item.id)}
-            />
-          </View>
-        )}
-      />
+              <Button
+                title="Kaydı Kaldır"
+                variant="secondary"
+                onPress={() => handleRemove(item.id)}
+              />
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 }
@@ -113,13 +117,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#777",
     marginTop: 6,
-  },
-  btn: {
-    marginTop: 10,
-    backgroundColor: "#f00",
-    color: "#fff",
-    padding: 8,
-    borderRadius: 6,
-    textAlign: "center",
   },
 });

@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import baslaIcon from "../../assets/icons/hemen-basla-icon.png";
 import homeImg from "../../assets/images/home-img.png";
 import Button from "../../src/components/Button";
+import PageHeader from "../../src/components/PageHeader";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
 export default function Home() {
@@ -19,13 +20,20 @@ export default function Home() {
   };
 
   return (
-    <View style={styles.container}>
-      <Image style={styles.img} source={homeImg} />
-      <View style={styles.content}>
-        <Text style={styles.title}>Hazır mısın?</Text>
-        <Text style={styles.subtitle}>Seviyen: {level}</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader title="KelimeKap" showBack={false} />
+      <View style={styles.container}>
+        <Image style={styles.img} source={homeImg} />
+        <View style={styles.content}>
+          <Text style={styles.title}>Hazır mısın?</Text>
+          <Text style={styles.subtitle}>Seviyen: {level}</Text>
+        </View>
+        <Button
+          title="Hemen Başla"
+          onPress={handleStart}
+          leftIcon={baslaIcon}
+        />
       </View>
-      <Button title="Hemen Başla" onPress={handleStart} leftIcon={baslaIcon} />
     </View>
   );
 }
@@ -35,5 +43,8 @@ const styles = StyleSheet.create({
   title: { fontSize: 32, fontWeight: "700", marginBottom: 6 },
   subtitle: { fontSize: 20, marginBottom: 20, color: "#555" },
   img: { width: "100%", height: 200, resizeMode: "contain", marginBottom: 20 },
-  content: { display: "flex", alignItems: "center" },
+  content: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
 });

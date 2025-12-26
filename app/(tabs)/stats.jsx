@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import PageHeader from "../../src/components/PageHeader";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
@@ -46,21 +47,23 @@ export default function Stats() {
       : 0;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>İstatistikler</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader title="İstatistik" />
 
-      <View style={styles.card}>
-        <Stat label="Toplam Çalışılan" value={stats.total} />
-        <Stat label="Biliyorum" value={stats.known} />
-        <Stat label="Öğreniliyor" value={stats.learning} />
-        <Stat label="Yeni" value={stats.new} />
-        <Stat label="Kaydedilen" value={stats.saved} />
-      </View>
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <Stat label="Toplam Çalışılan" value={stats.total} />
+          <Stat label="Biliyorum" value={stats.known} />
+          <Stat label="Öğreniliyor" value={stats.learning} />
+          <Stat label="Yeni" value={stats.new} />
+          <Stat label="Kaydedilen" value={stats.saved} />
+        </View>
 
-      <View style={styles.card}>
-        <Stat label="Doğru Sayısı" value={stats.correct} />
-        <Stat label="Yanlış Sayısı" value={stats.wrong} />
-        <Stat label="Başarı Oranı" value={`${accuracy}%`} />
+        <View style={styles.card}>
+          <Stat label="Doğru Sayısı" value={stats.correct} />
+          <Stat label="Yanlış Sayısı" value={stats.wrong} />
+          <Stat label="Başarı Oranı" value={`${accuracy}%`} />
+        </View>
       </View>
     </View>
   );

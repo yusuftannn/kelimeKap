@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
+import PageHeader from "../../src/components/PageHeader";
 import { LevelService } from "../../src/services/level.service";
 import { UserService } from "../../src/services/user.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
@@ -68,58 +69,59 @@ export default function Profile() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profil</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader title="Profil" />
+      <View style={styles.container}>
+        <Text style={styles.label}>Email</Text>
+        <Text style={styles.readonly}>{user.email}</Text>
 
-      <Text style={styles.label}>Email</Text>
-      <Text style={styles.readonly}>{user.email}</Text>
+        <Text style={styles.label}>İsim</Text>
+        <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
 
-      <Text style={styles.label}>İsim</Text>
-      <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
+        <Text style={styles.label}>Username</Text>
+        <Input
+          placeholder="Username"
+          value={username}
+          onChangeText={setUsername}
+        />
 
-      <Text style={styles.label}>Username</Text>
-      <Input
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
+        <Text style={styles.label}>Seviye</Text>
 
-      <Text style={styles.label}>Seviye</Text>
+        {loadingLevels ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={level}
+              onValueChange={(value) => setLevel(value)}
+            >
+              <Picker.Item label="Seviye Seç" value="" />
+              {levels.map((lvl) => (
+                <Picker.Item
+                  key={lvl.id}
+                  label={`${lvl.code} · ${lvl.title}`}
+                  value={lvl.code.toUpperCase()}
+                />
+              ))}
+            </Picker>
+          </View>
+        )}
 
-      {loadingLevels ? (
-        <ActivityIndicator />
-      ) : (
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={level}
-            onValueChange={(value) => setLevel(value)}
-          >
-            <Picker.Item label="Seviye Seç" value="" />
-            {levels.map((lvl) => (
-              <Picker.Item
-                key={lvl.id}
-                label={`${lvl.code} · ${lvl.title}`}
-                value={lvl.code.toUpperCase()}
-              />
-            ))}
-          </Picker>
-        </View>
-      )}
+        {loading ? (
+          <ActivityIndicator size="large" />
+        ) : (
+          <Button title="Kaydet" onPress={saveProfile} />
+        )}
 
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : (
-        <Button title="Kaydet" onPress={saveProfile} />
-      )}
-
-      <Button
-        title="Çıkış Yap"
-        variant="secondary"
-        onPress={() => {
-          useAuthStore.getState().logout();
-          router.replace("/(auth)/login");
-        }}
-      />
+        <Button
+          title="Çıkış Yap"
+          variant="secondary"
+          onPress={() => {
+            useAuthStore.getState().logout();
+            router.replace("/(auth)/login");
+          }}
+        />
+      </View>
     </View>
   );
 }
