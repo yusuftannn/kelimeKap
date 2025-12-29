@@ -1,6 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
@@ -20,9 +20,23 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
   const [loadingLevels, setLoadingLevels] = useState(true);
 
-  useEffect(() => {
-    loadLevels();
+  const loadLevels = useCallback(async () => {
+    try {
+      setLoadingLevels(true);
+      const data = await LevelService.getLevels();
+      setLevels(data);
+    } catch (e) {
+      console.log("Level load error:", e);
+    } finally {
+      setLoadingLevels(false);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadLevels();
+    }, [loadLevels])
+  );
 
   useEffect(() => {
     if (user) {
@@ -31,19 +45,6 @@ export default function Profile() {
       setLevel(user.level || "");
     }
   }, [user]);
-
-  if (!user) return null;
-
-  const loadLevels = async () => {
-    try {
-      const data = await LevelService.getLevels();
-      setLevels(data);
-    } catch (e) {
-      console.log("Level load error:", e);
-    } finally {
-      setLoadingLevels(false);
-    }
-  };
 
   const saveProfile = async () => {
     try {
@@ -67,6 +68,14 @@ export default function Profile() {
       setLoading(false);
     }
   };
+
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -130,11 +139,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 20,
   },
   label: {
     marginTop: 12,

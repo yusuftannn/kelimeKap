@@ -6,7 +6,6 @@ import WordCard from "../../src/components/WordCard";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
-
 export default function WordCardScreen() {
   const user = useAuthStore((s) => s.user);
   const { mode } = useLocalSearchParams();
@@ -51,7 +50,10 @@ export default function WordCardScreen() {
 
   const goNext = () => {
     if (index + 1 >= words.length) {
-      router.replace("/learn/result");
+      router.replace({
+        pathname: "/learn/result",
+        params: { mode },
+      });
     } else {
       setIndex(index + 1);
     }

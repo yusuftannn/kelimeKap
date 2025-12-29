@@ -1,10 +1,11 @@
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import Button from "../../src/components/Button";
@@ -17,39 +18,53 @@ export default function Saved() {
 
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    loadSaved();
-  }, []);
+  const loadSaved = useCallback(async () => {
+    if (!user?.id) return;
 
-  const loadSaved = async () => {
+    setLoading(true);
     try {
       const data = await WordService.getSavedWords(user.id);
       setWords(data);
-    } catch (e) {
-      console.log("Saved load error:", e);
+    } catch (error) {
+      console.error("Saved words load error:", error);
     } finally {
       setLoading(false);
     }
-  };
-  const handleRemove = async (wordId) => {
-    await WordService.removeSavedWord(user.id, wordId);
+  }, [user?.id]);
 
-    setWords((prev) => prev.filter((w) => w.id !== wordId));
-  };
+  useFocusEffect(
+    useCallback(() => {
+      loadSaved();
+    }, [loadSaved])
+  );
+
+  const handleRemove = useCallback(
+    async (wordId) => {
+      try {
+        await WordService.removeSavedWord(user.id, wordId);
+        setWords((prev) => prev.filter((w) => w.id !== wordId));
+      } catch (error) {
+        console.error("Remove saved word error:", error);
+      }
+    },
+    [user?.id]
+  );
+
+  const filteredWords = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return words;
+
+    return words.filter(
+      (w) => w.en?.toLowerCase().includes(q) || w.tr?.toLowerCase().includes(q)
+    );
+  }, [search, words]);
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (words.length === 0) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.empty}>Henüz kaydedilmiş kelime yok.</Text>
+        <ActivityIndicator size="large" color="#ED7A58" />
       </View>
     );
   }
@@ -58,25 +73,38 @@ export default function Saved() {
     <View style={{ flex: 1 }}>
       <PageHeader title="Kaydedilenler" />
       <View style={styles.container}>
+        <TextInput
+          style={styles.search}
+          placeholder="Kelime ara (EN / TR)"
+          value={search}
+          onChangeText={setSearch}
+          autoCorrect={false}
+        />
         <Button
           title="Kaydedilenlerden Tekrar Çalış"
           onPress={() => router.push("/learn/word-card?mode=saved")}
         />
         <FlatList
-          data={words}
+          data={filteredWords}
           keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          ListEmptyComponent={
+            <Text style={styles.empty}>Aramanıza uygun kelime bulunamadı.</Text>
+          }
           renderItem={({ item }) => (
             <View style={styles.card}>
-              <Text style={styles.en}>{item.en}</Text>
-              <Text style={styles.tr}>{item.tr}</Text>
+              <Text style={styles.word}>{item.en}</Text>
+              <View style={styles.line} />
+              <Text style={styles.word}>{item.tr}</Text>
 
-              {item.example_tr && (
-                <Text style={styles.example}>{item.example_tr}</Text>
+              {item.example_en && (
+                <Text style={styles.example}>“{item.example_en}”</Text>
               )}
 
               <Button
                 title="Kaydı Kaldır"
                 variant="secondary"
+                style={styles.removeBtn}
                 onPress={() => handleRemove(item.id)}
               />
             </View>
@@ -99,23 +127,44 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   card: {
-    backgroundColor: "#FFF",
+    backgroundColor: "rgba(250,220,219,0.7)",
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    elevation: 2,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  en: {
+  word: {
     fontSize: 20,
     fontWeight: "700",
   },
-  tr: {
-    fontSize: 16,
-    marginTop: 4,
+  removeBtn: {
+    color: "#fff",
+    marginTop: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#ED7A58",
+  },
+  line: {
+    width: "70%",
+    height: 6,
+    backgroundColor: "#ED7A58",
+    marginVertical: 15,
   },
   example: {
     fontSize: 13,
     color: "#777",
-    marginTop: 6,
+    marginVertical: 12,
+  },
+  search: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
 });

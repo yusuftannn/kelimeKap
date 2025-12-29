@@ -19,6 +19,17 @@ export default function Home() {
     router.push("/learn/word-card");
   };
 
+  if (!user) {
+    return (
+      <View style={{ flex: 1 }}>
+        <PageHeader title="KelimeKap" showBack={false} />
+        <View style={styles.container}>
+          <Text>Yükleniyor...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <PageHeader title="KelimeKap" showBack={false} />
@@ -26,7 +37,7 @@ export default function Home() {
         <Image style={styles.img} source={homeImg} />
         <View style={styles.content}>
           <Text style={styles.title}>Hazır mısın?</Text>
-          <Text style={styles.subtitle}>Seviyen: {level}</Text>
+          <Text style={styles.subtitle}>Seviyen: {level || "Seçilmedi"}</Text>
         </View>
         <Button
           title="Hemen Başla"

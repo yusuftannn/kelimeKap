@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import PageHeader from "../../src/components/PageHeader";
 import { WordService } from "../../src/services/words.service";
@@ -10,12 +11,11 @@ export default function Stats() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
+  const loadStats = useCallback(async () => {
+    if (!user?.id) return;
 
-  const loadStats = async () => {
     try {
+      setLoading(true);
       const data = await WordService.getUserStats(user.id);
       setStats(data);
     } catch (e) {
@@ -23,9 +23,15 @@ export default function Stats() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
-  if (loading) {
+  useFocusEffect(
+    useCallback(() => {
+      loadStats();
+    }, [loadStats])
+  );
+
+  if (!user || loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" />
