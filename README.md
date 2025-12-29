@@ -1,50 +1,42 @@
-# Welcome to your Expo app 👋
+# KelimeKap
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+KelimeKap, kullanıcıların seviyelerine göre İngilizce kelimeler öğrenmesini ve tekrar etmesini sağlayan, modern ve mobil öncelikli bir kelime öğrenme uygulamasıdır. Kullanıcılar seviyelerini seçebilir, kelime kartlarıyla çalışabilir, kelimeleri kaydedebilir ve istatistiklerini takip edebilir.
 
-## Get started
+## Özellikler
 
-1. Install dependencies
+- Seviye tabanlı kelime öğrenme
+- Kişisel kelime kartları ve tekrar sistemi
+- Kaydedilen kelimelerle çalışma
+- Kullanıcı profili ve seviye güncelleme
+- Öğrenme istatistikleri
+- Firebase ile kimlik doğrulama ve veri yönetimi
 
+## Kurulum
+
+1. Depoyu klonlayın:
+   ```bash
+   git clone https://github.com/yusuftannn/kelimeKap.git
+   cd kelimeKap
+   ```
+2. Bağımlılıkları yükleyin:
    ```bash
    npm install
    ```
-
-2. Start the app
-
+3. Gerekli ortam değişkenlerini `.env` veya `app.json` dosyanıza ekleyin (Firebase anahtarları vb.).
+4. Uygulamayı başlatın:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Kullanım
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Uygulama açıldığında giriş yapın veya kayıt olun.
+- Seviyenizi seçin ve kelime kartlarıyla çalışmaya başlayın.
+- Zorlandığınız kelimeleri kaydedin, istatistiklerinizi takip edin.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Kullanılan Teknolojiler
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- React Native & Expo
+- Firebase (Auth, Firestore, Storage)
+- Zustand (Global state yönetimi)
+- Axios (API istekleri)
