@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import Button from "../../src/components/Button";
+import PageHeader from "../../src/components/PageHeader";
 import WordCard from "../../src/components/WordCard";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
@@ -22,9 +23,9 @@ export default function WordCardScreen() {
     }
 
     loadWords();
-  }, []);
+  }, [user?.level, loadWords]);
 
-  const loadWords = async () => {
+  const loadWords = useCallback(async () => {
     try {
       let data = [];
 
@@ -46,7 +47,7 @@ export default function WordCardScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [mode, user?.id, user?.level]);
 
   const goNext = () => {
     if (index + 1 >= words.length) {
@@ -106,18 +107,25 @@ export default function WordCardScreen() {
   const currentWord = words[index];
 
   return (
-    <View style={styles.container}>
-      <WordCard
-        front={currentWord.en}
-        back={currentWord.tr}
-        exampleEn={currentWord.example_en}
-        exampleTr={currentWord.example_tr}
-      />
+    <View style={{ flex: 1 }}>
+      <PageHeader title="Öğren" showBack={false} />
+      <View style={styles.container}>
+        <WordCard
+          front={currentWord.en}
+          back={currentWord.tr}
+          exampleEn={currentWord.example_en}
+          exampleTr={currentWord.example_tr}
+        />
 
-      <View style={styles.actions}>
-        <Button title="Bilmiyorum" variant="secondary" onPress={handleWrong} />
-        <Button title="Kaydet" onPress={handleSave} />
-        <Button title="Biliyorum" onPress={handleCorrect} />
+        <View style={styles.actions}>
+          <Button
+            title="Bilmiyorum"
+            variant="secondary"
+            onPress={handleWrong}
+          />
+          <Button title="Kaydet" onPress={handleSave} />
+          <Button title="Biliyorum" onPress={handleCorrect} />
+        </View>
       </View>
     </View>
   );
