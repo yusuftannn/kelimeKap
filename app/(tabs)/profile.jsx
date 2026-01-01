@@ -124,7 +124,7 @@ export default function Profile() {
 
         <Button
           title="Çıkış Yap"
-          variant="secondary"
+          variant="outline"
           onPress={() => {
             useAuthStore.getState().logout();
             router.replace("/(auth)/login");

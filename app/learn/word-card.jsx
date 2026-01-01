@@ -14,6 +14,8 @@ export default function WordCardScreen() {
   const [words, setWords] = useState([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [actionType, setActionType] = useState(null);
+  const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -50,16 +52,20 @@ export default function WordCardScreen() {
   }, [mode, user?.id, user?.level]);
 
   const goNext = () => {
+    setActionType(null);
+
     if (index + 1 >= words.length) {
       router.replace({
         pathname: "/learn/result",
         params: { mode },
       });
     } else {
-      setIndex(index + 1);
+      setIndex((prev) => prev + 1);
     }
   };
   const handleCorrect = async () => {
+    setActionType("correct");
+
     const userWordId = await WordService.getOrCreateUserWord(
       user.id,
       currentWord.id
@@ -68,8 +74,9 @@ export default function WordCardScreen() {
     await WordService.markCorrect(userWordId);
     goNext();
   };
-
   const handleWrong = async () => {
+    setActionType("wrong");
+
     const userWordId = await WordService.getOrCreateUserWord(
       user.id,
       currentWord.id
@@ -80,13 +87,24 @@ export default function WordCardScreen() {
   };
 
   const handleSave = async () => {
+    if (actionType) return;
+
+    setActionType("save");
+
     const userWordId = await WordService.getOrCreateUserWord(
       user.id,
       currentWord.id
     );
 
     await WordService.toggleSaved(userWordId, true);
+
+    setSaved(true);
+    setActionType(null);
   };
+  useEffect(() => {
+    setSaved(false);
+    setActionType(null);
+  }, [index]);
 
   if (loading) {
     return (
@@ -119,12 +137,25 @@ export default function WordCardScreen() {
 
         <View style={styles.actions}>
           <Button
-            title="Bilmiyorum"
-            variant="secondary"
+            title={actionType === "wrong" ? "İşleniyor..." : "Bilmiyorum"}
+            variant="danger"
             onPress={handleWrong}
+            disabled={actionType !== null}
           />
-          <Button title="Kaydet" onPress={handleSave} />
-          <Button title="Biliyorum" onPress={handleCorrect} />
+
+          <Button
+            title={saved ? "Kaydedildi" : "Kaydet"}
+            variant="outline"
+            onPress={handleSave}
+            disabled={actionType !== null || saved}
+          />
+
+          <Button
+            title={actionType === "correct" ? "İşleniyor..." : "Biliyorum"}
+            variant="success"
+            onPress={handleCorrect}
+            disabled={actionType !== null}
+          />
         </View>
       </View>
     </View>

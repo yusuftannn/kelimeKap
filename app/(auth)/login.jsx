@@ -137,8 +137,4 @@ const styles = StyleSheet.create({
     top: "50%",
     transform: [{ translateY: -12 }],
   },
-
-  eyeText: {
-    fontSize: 20,
-  },
 });

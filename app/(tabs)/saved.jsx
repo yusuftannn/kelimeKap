@@ -80,10 +80,12 @@ export default function Saved() {
           onChangeText={setSearch}
           autoCorrect={false}
         />
-        <Button
-          title="Kaydedilenlerden Tekrar Çalış"
-          onPress={() => router.push("/learn/word-card?mode=saved")}
-        />
+        {words.length > 0 && (
+          <Button
+            title="Kaydedilenlerden Tekrar Çalış"
+            onPress={() => router.push("/learn/word-card?mode=saved")}
+          />
+        )}
         <FlatList
           data={filteredWords}
           keyExtractor={(item) => item.id}
@@ -103,7 +105,7 @@ export default function Saved() {
 
               <Button
                 title="Kaydı Kaldır"
-                variant="secondary"
+                variant="danger"
                 style={styles.removeBtn}
                 onPress={() => handleRemove(item.id)}
               />

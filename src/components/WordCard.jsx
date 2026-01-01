@@ -1,3 +1,4 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -29,21 +30,42 @@ export default function WordCard({ front, back, exampleEn, exampleTr }) {
     <Pressable onPress={flipCard}>
       <View style={styles.container}>
         <Animated.View
-          style={[styles.card, { transform: [{ rotateY: frontInterpolate }] }]}
+          style={[
+            styles.card,
+            {
+              transform: [{ perspective: 1000 }, { rotateY: frontInterpolate }],
+            },
+          ]}
+          pointerEvents={flipped ? "none" : "auto"}
         >
           <Text style={styles.word}>{front}</Text>
           {exampleEn && <Text style={styles.example}>{exampleEn}</Text>}
+          <View style={styles.entr}>
+            <Text style={styles.hintText}>EN</Text>
+          </View>
+          <View style={styles.hint}>
+            <MaterialIcons name="touch-app" size={20} color="#999" />
+          </View>
         </Animated.View>
 
         <Animated.View
           style={[
             styles.card,
             styles.back,
-            { transform: [{ rotateY: backInterpolate }] },
+            {
+              transform: [{ perspective: 1000 }, { rotateY: backInterpolate }],
+            },
           ]}
+          pointerEvents={flipped ? "auto" : "none"}
         >
           <Text style={styles.word}>{back}</Text>
           {exampleTr && <Text style={styles.example}>{exampleTr}</Text>}
+          <View style={styles.entr}>
+            <Text style={styles.hintText}>TR</Text>
+          </View>
+          <View style={styles.hint}>
+            <MaterialIcons name="touch-app" size={18} color="#999" />
+          </View>
         </Animated.View>
       </View>
     </Pressable>
@@ -77,5 +99,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     textAlign: "center",
+  },
+  entr: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    opacity: 0.6,
+  },
+  hint: {
+    position: "absolute",
+    bottom: 12,
+    right: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    opacity: 0.6,
+  },
+  hintText: {
+    marginLeft: 4,
+    fontSize: 12,
+    color: "#999",
   },
 });

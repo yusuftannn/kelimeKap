@@ -6,25 +6,33 @@ export default function Button({
   onPress,
   variant = "primary",
   style,
-  iconSize = 20,
+  iconSize = 18,
+  disabled = false,
 }) {
   return (
     <TouchableOpacity
-      style={[styles.button, styles[variant], style]}
+      activeOpacity={0.85}
       onPress={onPress}
-      activeOpacity={0.8}
+      disabled={disabled}
+      style={[
+        styles.button,
+        styles[variant],
+        disabled && styles.disabled,
+        style,
+      ]}
     >
       <View style={styles.content}>
         {leftIcon && (
           <Image
             source={leftIcon}
             style={[styles.icon, { width: iconSize, height: iconSize }]}
-            resizeMode="contain"
           />
         )}
-
         <Text
-          style={[styles.text, variant === "secondary" && styles.secondaryText]}
+          style={[
+            styles.text,
+            (variant === "outline" || variant === "ghost") && styles.darkText,
+          ]}
         >
           {title}
         </Text>
@@ -37,22 +45,45 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     paddingVertical: 14,
-    borderRadius: 20,
-    marginVertical: 8,
+    borderRadius: 16,
+    marginVertical: 6,
     alignItems: "center",
     justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
+
   content: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+
   primary: {
     backgroundColor: "#2E609B",
   },
 
-  secondary: {
-    backgroundColor: "#E8E8E8",
+  success: {
+    backgroundColor: "#1F9D55",
+  },
+
+  danger: {
+    backgroundColor: "#E5533D",
+  },
+
+  outline: {
+    backgroundColor: "#FFFFFF",
+  },
+
+  ghost: {
+    backgroundColor: "transparent",
+  },
+
+  disabled: {
+    opacity: 0.5,
   },
 
   text: {
@@ -61,7 +92,11 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 
-  secondaryText: {
-    color: "#111",
+  darkText: {
+    color: "#2E609B",
+  },
+
+  icon: {
+    tintColor: "#FFF",
   },
 });
