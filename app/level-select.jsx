@@ -1,7 +1,14 @@
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Button from "../src/components/Button";
+import PageHeader from "../src/components/PageHeader";
 import { LevelService } from "../src/services/level.service";
 import { UserService } from "../src/services/user.service";
 import { useAuthStore } from "../src/store/useAuthStore";
@@ -9,11 +16,13 @@ import { useWordStore } from "../src/store/useWordStore";
 
 export default function LevelSelect() {
   const user = useAuthStore((s) => s.user);
-  const setLevelLocal = useWordStore((s) => s.setLevel);
   const updateAuthUser = useAuthStore((s) => s.setUser);
+  const setLevelLocal = useWordStore((s) => s.setLevel);
 
   const [levels, setLevels] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadLevels();
@@ -30,13 +39,25 @@ export default function LevelSelect() {
     }
   };
 
-  const handleSelect = async (level) => {
-    await UserService.updateLevel(user.id, level.code);
+  const handleSave = async () => {
+    if (!selected) return;
 
-    setLevelLocal(level.code);
-    updateAuthUser({ ...user, level: level.code });
+    try {
+      setSaving(true);
 
-    router.replace("/(tabs)");
+      await UserService.updateProfile(user.id, {
+        level: selected.code,
+      });
+
+      setLevelLocal(selected.code);
+      updateAuthUser({ ...user, level: selected.code });
+
+      router.replace("/(tabs)");
+    } catch (e) {
+      console.log("Level save error:", e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -48,57 +69,109 @@ export default function LevelSelect() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>İngilizce Seviyeni Seç</Text>
+    <View style={{ flex: 1 }}>
+      <PageHeader title="İngilizce Seviyeni Seç" showBack={false} />
 
-      {levels.map((level) => (
-        <View key={level.id} style={styles.card}>
-          <Text style={styles.levelTitle}>
-            {level.code} · {level.title}
-          </Text>
+      <View style={styles.container}>
+        {levels.map((level) => {
+          const isSelected = selected?.id === level.id;
 
-          <Text style={styles.desc}>{level.description}</Text>
+          return (
+            <TouchableOpacity
+              key={level.id}
+              activeOpacity={0.8}
+              onPress={() => setSelected(level)}
+              style={[styles.card, isSelected && styles.cardSelected]}
+            >
+              <View style={styles.cardHeader}>
+                <Text style={styles.levelTitle}>
+                  {level.code} · {level.title}
+                </Text>
 
-          <Button
-            title="Seç"
-            onPress={() => handleSelect(level)}
-          />
-        </View>
-      ))}
+                <View style={[styles.check, isSelected && styles.checkActive]}>
+                  {isSelected && <Text style={styles.checkText}>✓</Text>}
+                </View>
+              </View>
+
+              <Text style={styles.desc}>{level.description}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <View style={styles.footer}>
+        <Button
+          title={saving ? "Kaydediliyor..." : "Kaydet"}
+          disabled={!selected || saving}
+          onPress={handleSave}
+        />
+      </View>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    padding: 20,
   },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    marginBottom: 20,
-  },
+
   card: {
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: "#FFF",
-    marginBottom: 16,
-    elevation: 2,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#EEE",
   },
+  cardSelected: {
+    borderColor: "#4F46E5",
+    backgroundColor: "#EEF2FF",
+  },
+
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
   levelTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
-    marginBottom: 6,
   },
+
   desc: {
     fontSize: 14,
     color: "#666",
-    marginBottom: 10,
+    marginTop: 6,
+  },
+
+  check: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#CCC",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkActive: {
+    borderColor: "#4F46E5",
+    backgroundColor: "#4F46E5",
+  },
+  checkText: {
+    color: "#FFF",
+    fontWeight: "700",
+  },
+
+  footer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: "#EEE",
+    backgroundColor: "#FFF",
   },
 });
