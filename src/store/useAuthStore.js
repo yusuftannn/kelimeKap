@@ -6,14 +6,36 @@ export const useAuthStore = create(
     (set) => ({
       user: null,
       token: null,
+      isGuest: false,
 
-      setUser: (userData) => set({ user: userData }),
-      setToken: (token) => set({ token }),
+      setUser: (userData) =>
+        set({
+          user: userData,
+          isGuest: false,
+        }),
 
-      logout: () => set({ user: null, token: null }),
+      setGuest: () =>
+        set({
+          user: {
+            id: "guest",
+            email: null,
+            name: null,
+            username: null,
+            level: null,
+          },
+          token: null,
+          isGuest: true,
+        }),
+
+      logout: () =>
+        set({
+          user: null,
+          token: null,
+          isGuest: false,
+        }),
     }),
     {
-      name: "auth-storage", // AsyncStorage key
+      name: "auth-storage",
     }
   )
 );

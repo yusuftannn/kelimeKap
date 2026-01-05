@@ -8,6 +8,9 @@ export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const setUser = useAuthStore((s) => s.setUser);
+  const setGuest = useAuthStore((s) => s.setGuest);
+
   const login = async (email, password) => {
     try {
       setLoading(true);
@@ -18,10 +21,10 @@ export default function useAuth() {
 
       const userData = await UserService.getUser(uid);
 
-      useAuthStore.getState().setUser({
+      setUser({
         id: uid,
         email: result.email,
-        name: userData?.name ?? "",
+        name: userData?.name ?? null,
         level: userData?.level ?? null,
         username: userData?.username ?? null,
       });
@@ -33,7 +36,7 @@ export default function useAuth() {
 
       router.replace("/(tabs)");
     } catch (err) {
-      setError("Giriş yapılamadı!");
+      setError("Giriş yapılamadı!", err);
     } finally {
       setLoading(false);
     }
@@ -47,15 +50,21 @@ export default function useAuth() {
       await AuthService.register(email, password);
       router.replace("/(auth)/login");
     } catch (e) {
-      setError("Kayıt başarısız");
+      setError("Kayıt başarısız", e);
     } finally {
       setLoading(false);
     }
   };
 
+  const guestLogin = () => {
+    setGuest();
+    router.replace("/level-select");
+  };
+
   return {
     login,
     register,
+    guestLogin,
     loading,
     error,
   };

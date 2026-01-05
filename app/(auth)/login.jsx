@@ -15,7 +15,7 @@ import Input from "../../src/components/Input";
 import useAuth from "../../src/hooks/useAuth";
 
 export default function Login() {
-  const { login, loading, error } = useAuth();
+  const { login, guestLogin, loading, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -65,6 +65,12 @@ export default function Login() {
       ) : (
         <Button title="Giriş Yap" onPress={handleLogin} />
       )}
+
+      <Button
+        title="Üye Olmadan Devam Et"
+        variant="danger"
+        onPress={guestLogin}
+      />
 
       <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
         <Text style={styles.link}>Hesabın yok mu? Kayıt Ol</Text>

@@ -18,6 +18,7 @@ export default function LevelSelect() {
   const user = useAuthStore((s) => s.user);
   const updateAuthUser = useAuthStore((s) => s.setUser);
   const setLevelLocal = useWordStore((s) => s.setLevel);
+  const isGuest = useAuthStore((s) => s.isGuest);
 
   const [levels, setLevels] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -45,12 +46,14 @@ export default function LevelSelect() {
     try {
       setSaving(true);
 
-      await UserService.updateProfile(user.id, {
-        level: selected.code,
-      });
+      if (!isGuest) {
+        await UserService.updateProfile(user.id, {
+          level: selected.code.toLowerCase(),
+        });
+      }
 
-      setLevelLocal(selected.code);
-      updateAuthUser({ ...user, level: selected.code });
+      setLevelLocal(selected.code.toLowerCase());
+      updateAuthUser({ ...user, level: selected.code.toLowerCase() });
 
       router.replace("/(tabs)");
     } catch (e) {
