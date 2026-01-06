@@ -15,17 +15,20 @@ export const useAuthStore = create(
         }),
 
       setGuest: () =>
-        set({
-          user: {
-            id: "guest",
-            email: null,
-            name: null,
-            username: null,
-            level: null,
-          },
+        set((state) => ({
+          user:
+            state.user?.id === "guest"
+              ? state.user
+              : {
+                  id: "guest",
+                  email: null,
+                  name: null,
+                  username: null,
+                  level: null,
+                },
           token: null,
           isGuest: true,
-        }),
+        })),
 
       logout: () =>
         set({

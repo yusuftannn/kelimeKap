@@ -43,6 +43,8 @@ export const UserService = {
   },
 
   async updateProfile(uid, data) {
+    if (!uid || uid === "guest") return;
+
     await updateDoc(doc(db, "users", uid), {
       ...data,
       updatedAt: serverTimestamp(),

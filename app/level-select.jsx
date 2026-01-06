@@ -1,5 +1,5 @@
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -25,12 +25,20 @@ export default function LevelSelect() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    loadLevels();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (isGuest && user?.level) {
+        router.replace("/(tabs)");
+        return;
+      }
 
-  const loadLevels = async () => {
+      loadLevels();
+    }, [isGuest, user?.level, loadLevels])
+  );
+
+  const loadLevels = useCallback(async () => {
     try {
+      setLoading(true);
       const data = await LevelService.getLevels();
       setLevels(data);
     } catch (e) {
@@ -38,8 +46,7 @@ export default function LevelSelect() {
     } finally {
       setLoading(false);
     }
-  };
-
+  }, []);
   const handleSave = async () => {
     if (!selected) return;
 
@@ -48,12 +55,12 @@ export default function LevelSelect() {
 
       if (!isGuest) {
         await UserService.updateProfile(user.id, {
-          level: selected.code.toLowerCase(),
+          level: selected.code,
         });
       }
 
-      setLevelLocal(selected.code.toLowerCase());
-      updateAuthUser({ ...user, level: selected.code.toLowerCase() });
+      setLevelLocal(selected.code);
+      updateAuthUser({ ...user, level: selected.code });
 
       router.replace("/(tabs)");
     } catch (e) {

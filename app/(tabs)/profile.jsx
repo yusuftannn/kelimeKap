@@ -12,6 +12,7 @@ import { useAuthStore } from "../../src/store/useAuthStore";
 export default function Profile() {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const isGuest = useAuthStore((s) => s.isGuest);
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -50,11 +51,13 @@ export default function Profile() {
     try {
       setLoading(true);
 
-      await UserService.updateProfile(user.id, {
-        name,
-        username,
-        level,
-      });
+      if (!isGuest && user?.id && user.id !== "guest") {
+        await UserService.updateProfile(user.id, {
+          name,
+          username,
+          level,
+        });
+      }
 
       setUser({
         ...user,
@@ -81,8 +84,12 @@ export default function Profile() {
     <View style={{ flex: 1 }}>
       <PageHeader title="Profil" />
       <View style={styles.container}>
-        <Text style={styles.label}>Email</Text>
-        <Text style={styles.readonly}>{user.email}</Text>
+        {!isGuest && (
+          <>
+            <Text style={styles.label}>Email</Text>
+            <Text style={styles.readonly}>{user.email}</Text>
+          </>
+        )}
 
         <Text style={styles.label}>İsim</Text>
         <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
@@ -100,6 +107,26 @@ export default function Profile() {
           <ActivityIndicator />
         ) : (
           <View style={styles.pickerWrapper}>
+            {isGuest && (
+              <View
+                style={{
+                  backgroundColor: "#FFF3CD",
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 12,
+                }}
+              >
+                <Text style={{ color: "#856404", marginBottom: 6 }}>
+                  Üyeliksiz moddasın. Bilgilerin sadece bu cihazda saklanır.
+                </Text>
+
+                <Button
+                  title="Hesap Oluştur"
+                  variant="outline"
+                  onPress={() => router.push("/(auth)/register")}
+                />
+              </View>
+            )}
             <Picker
               selectedValue={level}
               onValueChange={(value) => setLevel(value)}

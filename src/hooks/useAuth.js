@@ -58,7 +58,16 @@ export default function useAuth() {
 
   const guestLogin = () => {
     setGuest();
-    router.replace("/level-select");
+
+    const { user } = useAuthStore.getState();
+
+    console.log("Guest user after set:", user);
+
+    if (user?.level) {
+      router.replace("/(tabs)");
+    } else {
+      router.replace("/level-select");
+    }
   };
 
   return {
