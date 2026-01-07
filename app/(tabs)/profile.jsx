@@ -1,11 +1,10 @@
-import { Picker } from "@react-native-picker/picker";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
+import LevelPicker from "../../src/components/LevelPicker";
 import PageHeader from "../../src/components/PageHeader";
-import { LevelService } from "../../src/services/level.service";
 import { UserService } from "../../src/services/user.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
 
@@ -17,27 +16,7 @@ export default function Profile() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [level, setLevel] = useState("");
-  const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingLevels, setLoadingLevels] = useState(true);
-
-  const loadLevels = useCallback(async () => {
-    try {
-      setLoadingLevels(true);
-      const data = await LevelService.getLevels();
-      setLevels(data);
-    } catch (e) {
-      console.log("Level load error:", e);
-    } finally {
-      setLoadingLevels(false);
-    }
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadLevels();
-    }, [loadLevels])
-  );
 
   useEffect(() => {
     if (user) {
@@ -90,7 +69,26 @@ export default function Profile() {
             <Text style={styles.readonly}>{user.email}</Text>
           </>
         )}
+        {isGuest && (
+          <View
+            style={{
+              backgroundColor: "#FFF3CD",
+              padding: 12,
+              borderRadius: 8,
+              marginBottom: 12,
+            }}
+          >
+            <Text style={{ color: "#856404", marginBottom: 6 }}>
+              Üyeliksiz moddasın. Bilgilerin sadece bu cihazda saklanır.
+            </Text>
 
+            <Button
+              title="Hesap Oluştur"
+              variant="outline"
+              onPress={() => router.push("/(auth)/register")}
+            />
+          </View>
+        )}
         <Text style={styles.label}>İsim</Text>
         <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
 
@@ -103,45 +101,7 @@ export default function Profile() {
 
         <Text style={styles.label}>Seviye</Text>
 
-        {loadingLevels ? (
-          <ActivityIndicator />
-        ) : (
-          <View style={styles.pickerWrapper}>
-            {isGuest && (
-              <View
-                style={{
-                  backgroundColor: "#FFF3CD",
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <Text style={{ color: "#856404", marginBottom: 6 }}>
-                  Üyeliksiz moddasın. Bilgilerin sadece bu cihazda saklanır.
-                </Text>
-
-                <Button
-                  title="Hesap Oluştur"
-                  variant="outline"
-                  onPress={() => router.push("/(auth)/register")}
-                />
-              </View>
-            )}
-            <Picker
-              selectedValue={level}
-              onValueChange={(value) => setLevel(value)}
-            >
-              <Picker.Item label="Seviye Seç" value="" />
-              {levels.map((lvl) => (
-                <Picker.Item
-                  key={lvl.id}
-                  label={`${lvl.code} · ${lvl.title}`}
-                  value={lvl.code.toUpperCase()}
-                />
-              ))}
-            </Picker>
-          </View>
-        )}
+        <LevelPicker value={level} onChange={(v) => setLevel(v)} />
 
         {loading ? (
           <ActivityIndicator size="large" />

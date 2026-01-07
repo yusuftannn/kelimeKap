@@ -15,6 +15,7 @@ export const UserService = {
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       level: null,
+      role: "user",
       username: null,
       name: null,
       savedWords: [],

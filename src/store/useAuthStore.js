@@ -15,27 +15,39 @@ export const useAuthStore = create(
         }),
 
       setGuest: () =>
+        set((state) => {
+          if (state.user?.id === "guest") {
+            return state;
+          }
+
+          return {
+            user: {
+              id: "guest",
+              role: "guest",
+              email: null,
+              name: "",
+              username: "",
+              level: null,
+            },
+            token: null,
+            isGuest: true,
+          };
+        }),
+
+      logout: () =>
         set((state) => ({
-          user:
-            state.user?.id === "guest"
-              ? state.user
-              : {
-                  id: "guest",
-                  email: null,
-                  name: null,
-                  username: null,
-                  level: null,
-                },
+          user: state.user
+            ? {
+                id: "guest",
+                email: null,
+                name: state.user.name ?? "",
+                username: state.user.username ?? "",
+                level: state.user.level,
+              }
+            : null,
           token: null,
           isGuest: true,
         })),
-
-      logout: () =>
-        set({
-          user: null,
-          token: null,
-          isGuest: false,
-        }),
     }),
     {
       name: "auth-storage",

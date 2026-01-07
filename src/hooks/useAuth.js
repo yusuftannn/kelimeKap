@@ -27,6 +27,7 @@ export default function useAuth() {
         name: userData?.name ?? null,
         level: userData?.level ?? null,
         username: userData?.username ?? null,
+        role: userData?.role ?? "user",
       });
 
       if (!userData?.level) {
@@ -70,10 +71,31 @@ export default function useAuth() {
     }
   };
 
+  const refreshUser = async () => {
+    const currentUser = useAuthStore.getState().user;
+
+    if (!currentUser || currentUser.id === "guest") return;
+
+    try {
+      const userData = await UserService.getUser(currentUser.id);
+
+      useAuthStore.getState().setUser({
+        ...currentUser,
+        role: userData?.role ?? "user",
+        level: userData?.level ?? null,
+        name: userData?.name ?? null,
+        username: userData?.username ?? null,
+      });
+    } catch (e) {
+      console.log("User refresh error:", e);
+    }
+  };
+
   return {
     login,
     register,
     guestLogin,
+    refreshUser,
     loading,
     error,
   };

@@ -1,7 +1,24 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import TabBarIcon from "../../src/components/TabBarIcon";
+import useAuth from "../../src/hooks/useAuth";
+import { useAuthStore } from "../../src/store/useAuthStore";
 
 export default function TabsLayout() {
+  const { refreshUser } = useAuth();
+  const user = useAuthStore((s) => s.user);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (user?.id && user.id !== "guest") {
+        refreshUser();
+      }
+    }, [user?.id])
+  );
+
+  if (user?.role === "admin") {
+    return <Redirect href="/admin" />;
+  }
   return (
     <Tabs
       screenOptions={{
@@ -32,7 +49,9 @@ export default function TabsLayout() {
         name="stats"
         options={{
           title: "İstatistik",
-          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="bar-chart" color={color} />
+          ),
         }}
       />
 

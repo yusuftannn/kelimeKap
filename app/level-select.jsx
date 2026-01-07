@@ -27,13 +27,13 @@ export default function LevelSelect() {
 
   useFocusEffect(
     useCallback(() => {
-      if (isGuest && user?.level) {
+      if (user?.level) {
         router.replace("/(tabs)");
         return;
       }
 
       loadLevels();
-    }, [isGuest, user?.level, loadLevels])
+    }, [user?.level])
   );
 
   const loadLevels = useCallback(async () => {
