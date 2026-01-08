@@ -18,7 +18,6 @@ export const UserService = {
       role: "user",
       username: null,
       name: null,
-      savedWords: [],
     });
   },
 

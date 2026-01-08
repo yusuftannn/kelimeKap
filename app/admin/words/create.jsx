@@ -21,8 +21,8 @@ export default function CreateWord() {
     await addDoc(collection(db, "words"), {
       en,
       tr,
-      exampleEn,
-      exampleTr,
+      example_en: exampleEn,
+      example_tr: exampleTr,
       level,
       createdAt: new Date(),
     });
