@@ -19,6 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import AdminGuard from "../../../src/components/AdminGuard";
 import Button from "../../../src/components/Button";
 import PageHeader from "../../../src/components/PageHeader";
@@ -32,7 +33,7 @@ export default function AdminWords() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [editWord, setEditWord] = useState(null); 
+  const [editWord, setEditWord] = useState(null);
 
   useEffect(() => {
     load(level);
@@ -69,16 +70,33 @@ export default function AdminWords() {
   const save = async () => {
     if (!editWord) return;
 
-    await updateDoc(doc(db, "words", editWord.id), {
-      en: editWord.en,
-      tr: editWord.tr,
-      example_en: editWord.example_en,
-      example_tr: editWord.example_tr,
-      level: editWord.level,
-    });
+    try {
+      await updateDoc(doc(db, "words", editWord.id), {
+        en: editWord.en,
+        tr: editWord.tr,
+        example_en: editWord.example_en,
+        example_tr: editWord.example_tr,
+        level: editWord.level,
+      });
 
-    setEditWord(null);
-    load(level);
+      setEditWord(null);
+      load(level);
+
+      Toast.show({
+        type: "success",
+        text1: "Güncellendi",
+        text2: `"${editWord.en}" kelimesi başarıyla güncellendi.`,
+        visibilityTime: 2000,
+      });
+    } catch (error) {
+      console.error("Update word error:", error);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelime güncellenirken bir sorun oluştu.",
+      });
+    }
   };
 
   const removeWord = (word) => {
@@ -91,9 +109,27 @@ export default function AdminWords() {
           text: "Sil",
           style: "destructive",
           onPress: async () => {
-            await deleteDoc(doc(db, "words", word.id));
-            setEditWord(null);
-            load(level);
+            try {
+              await deleteDoc(doc(db, "words", word.id));
+
+              setEditWord(null);
+              load(level);
+
+              Toast.show({
+                type: "success",
+                text1: "Silindi",
+                text2: `"${word.en}" kelimesi silindi.`,
+                visibilityTime: 2000,
+              });
+            } catch (error) {
+              console.error("Delete word error:", error);
+
+              Toast.show({
+                type: "error",
+                text1: "Hata",
+                text2: "Kelime silinirken bir sorun oluştu.",
+              });
+            }
           },
         },
       ]
@@ -125,7 +161,7 @@ export default function AdminWords() {
               onPress={() => setLevel(l)}
               style={{
                 paddingVertical: 8,
-                paddingHorizontal: 14,
+                paddingHorizontal: 12,
                 borderRadius: 999,
                 backgroundColor: level === l ? "#2563eb" : "#f3f4f6",
               }}

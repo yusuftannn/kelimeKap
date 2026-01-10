@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import Logo from "../../assets/images/logo.png";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
@@ -22,10 +23,32 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
+  useEffect(() => {
+    if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Kayıt Başarısız",
+        text2: error,
+      });
+    }
+  }, [error]);
+
   const handleRegister = () => {
-    if (!email || !password) return;
+    if (!email || !password || !password2) {
+      Toast.show({
+        type: "error",
+        text1: "Eksik Bilgi",
+        text2: "Lütfen tüm alanları doldurun.",
+      });
+      return;
+    }
+
     if (password !== password2) {
-      alert("Şifreler eşleşmiyor.");
+      Toast.show({
+        type: "error",
+        text1: "Şifre Hatası",
+        text2: "Şifreler birbiriyle eşleşmiyor.",
+      });
       return;
     }
 
@@ -78,7 +101,6 @@ export default function Register() {
           />
         </TouchableOpacity>
       </View>
-      {error && <Text style={styles.error}>{error}</Text>}
 
       {loading ? (
         <ActivityIndicator size="large" color="#2E6EF7" />

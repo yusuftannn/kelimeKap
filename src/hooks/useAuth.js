@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import Toast from "react-native-toast-message";
 import { AuthService } from "../services/auth.service";
 import { UserService } from "../services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
@@ -49,9 +50,23 @@ export default function useAuth() {
       setError(null);
 
       await AuthService.register(email, password);
+
+      Toast.show({
+        type: "success",
+        text1: "Hoş geldin",
+        text2: "Hesabın başarıyla oluşturuldu.",
+        visibilityTime: 2000,
+      });
+
       router.replace("/(auth)/login");
     } catch (e) {
-      setError("Kayıt başarısız", e);
+      setError("Kayıt başarısız");
+
+      Toast.show({
+        type: "error",
+        text1: "Kayıt Başarısız",
+        text2: "Hesap oluşturulurken bir hata oluştu.",
+      });
     } finally {
       setLoading(false);
     }
