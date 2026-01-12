@@ -1,6 +1,7 @@
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
 import LevelPicker from "../../src/components/LevelPicker";
@@ -18,13 +19,15 @@ export default function Profile() {
   const [level, setLevel] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setUsername(user.username || "");
-      setLevel(user.level || "");
-    }
-  }, [user]);
+  useFocusEffect(
+    useCallback(() => {
+      if (user) {
+        setName(user.name || "");
+        setUsername(user.username || "");
+        setLevel(user.level || "");
+      }
+    }, [user])
+  );
 
   const saveProfile = async () => {
     try {
@@ -44,8 +47,22 @@ export default function Profile() {
         username,
         level,
       });
+
+      Toast.show({
+        type: "success",
+        text1: "Başarılı",
+        text2: "Profil bilgileri güncellendi.",
+        visibilityTime: 2000,
+      });
     } catch (e) {
       console.log("Profile update error:", e);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Profil güncellenirken bir sorun oluştu.",
+        visibilityTime: 2500,
+      });
     } finally {
       setLoading(false);
     }

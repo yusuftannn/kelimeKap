@@ -12,6 +12,11 @@ export default function AdminHome() {
 
       <View style={{ padding: 20 }}>
         <Button
+          title="Kullanıcılar"
+          variant="success"
+          onPress={() => router.push("/admin/users")}
+        />
+        <Button
           title="Kelime Yönetimi"
           onPress={() => router.push("/admin/words")}
         />
@@ -21,6 +26,7 @@ export default function AdminHome() {
           variant="outline"
           onPress={() => router.push("/admin/words/create")}
         />
+
         <Button
           title="Çıkış Yap"
           variant="danger"

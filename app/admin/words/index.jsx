@@ -14,6 +14,7 @@ import {
   Alert,
   FlatList,
   Modal,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -221,87 +222,107 @@ export default function AdminWords() {
         />
       )}
 
-      <Modal visible={!!editWord} animationType="slide">
+      <Modal
+        visible={!!editWord}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setEditWord(null)}
+      >
         {editWord && (
-          <View style={{ padding: 16, gap: 10 }}>
-            <Text style={{ fontWeight: "700", fontSize: 18 }}>
-              Kelime Düzenle
-            </Text>
-            <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-              EN
-            </Text>
-            <TextInput
-              placeholder="English"
-              value={editWord.en}
-              onChangeText={(v) => setEditWord({ ...editWord, en: v })}
-              style={input}
-            />
-            <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-              TR
-            </Text>
-
-            <TextInput
-              placeholder="Türkçe"
-              value={editWord.tr}
-              onChangeText={(v) => setEditWord({ ...editWord, tr: v })}
-              style={input}
-            />
-            <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-              EN Örnek
-            </Text>
-
-            <TextInput
-              placeholder="Example EN"
-              value={editWord.example_en}
-              onChangeText={(v) => setEditWord({ ...editWord, example_en: v })}
-              style={input}
-            />
-            <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-              TR Örnek
-            </Text>
-            <TextInput
-              placeholder="Example TR"
-              value={editWord.example_tr}
-              onChangeText={(v) => setEditWord({ ...editWord, example_tr: v })}
-              style={input}
-            />
-
-            <View>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>Kelime Düzenle</Text>
               <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-                Level
+                EN
+              </Text>
+              <TextInput
+                placeholder="English"
+                value={editWord.en}
+                onChangeText={(v) => setEditWord({ ...editWord, en: v })}
+                style={styles.input}
+              />
+              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
+                TR
               </Text>
 
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#e5e7eb",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                }}
-              >
-                <Picker
-                  selectedValue={editWord.level}
-                  onValueChange={(v) => setEditWord({ ...editWord, level: v })}
-                >
-                  {LEVELS.map((l) => (
-                    <Picker.Item key={l} label={l} value={l} />
-                  ))}
-                </Picker>
-              </View>
-            </View>
-
-            <View style={{ flexDirection: "column", gap: 5 }}>
-              <Button title="Kaydet" onPress={save} variant="primary" />
-              <Button
-                title="İptal"
-                onPress={() => setEditWord(null)}
-                variant="outline"
+              <TextInput
+                placeholder="Türkçe"
+                value={editWord.tr}
+                onChangeText={(v) => setEditWord({ ...editWord, tr: v })}
+                style={styles.input}
               />
+              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
+                EN Örnek
+              </Text>
+
+              <TextInput
+                placeholder="Example EN"
+                value={editWord.example_en}
+                onChangeText={(v) =>
+                  setEditWord({ ...editWord, example_en: v })
+                }
+                style={styles.input}
+              />
+              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
+                TR Örnek
+              </Text>
+              <TextInput
+                placeholder="Example TR"
+                value={editWord.example_tr}
+                onChangeText={(v) =>
+                  setEditWord({ ...editWord, example_tr: v })
+                }
+                style={styles.input}
+              />
+
+              <View>
+                <Text
+                  style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}
+                >
+                  Level
+                </Text>
+
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#e5e7eb",
+                    borderRadius: 8,
+                    overflow: "hidden",
+                  }}
+                >
+                  <Picker
+                    selectedValue={editWord.level}
+                    onValueChange={(v) =>
+                      setEditWord({ ...editWord, level: v })
+                    }
+                  >
+                    {LEVELS.map((l) => (
+                      <Picker.Item key={l} label={l} value={l} />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+
+              <View style={styles.modalActions}>
+                <Button
+                  title="Kaydet"
+                  onPress={save}
+                  variant="primary"
+                  style={{ flex: 1 }}
+                />
+                <Button
+                  title="İptal"
+                  onPress={() => setEditWord(null)}
+                  variant="outline"
+                  style={{ flex: 1 }}
+                />
+              </View>
 
               <Button
                 title="Kelimeyi Sil"
                 onPress={() => removeWord(editWord)}
                 variant="danger"
+                style={{ marginTop: 8 }}
               />
             </View>
           </View>
@@ -310,11 +331,35 @@ export default function AdminWords() {
     </AdminGuard>
   );
 }
+const styles = StyleSheet.create({
+  input: {
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "#fff",
+  },
 
-const input = {
-  borderWidth: 1,
-  borderColor: "#e5e7eb",
-  borderRadius: 8,
-  padding: 10,
-  backgroundColor: "#fff",
-};
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.45)",
+    justifyContent: "center",
+    padding: 16,
+  },
+  modalCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    maxHeight: "90%",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+  },
+});

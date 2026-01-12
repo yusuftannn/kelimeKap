@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import Button from "../../src/components/Button";
 import PageHeader from "../../src/components/PageHeader";
 import { WordService } from "../../src/services/words.service";
@@ -36,6 +37,7 @@ export default function Saved() {
 
   useFocusEffect(
     useCallback(() => {
+      setSearch("");
       loadSaved();
     }, [loadSaved])
   );
@@ -45,6 +47,12 @@ export default function Saved() {
       try {
         await WordService.removeSavedWord(user.id, wordId);
         setWords((prev) => prev.filter((w) => w.id !== wordId));
+        Toast.show({
+          type: "success",
+          text1: "Başarılı",
+          text2: "Kelime kaydedilenlerden kaldırıldı.",
+          visibilityTime: 2000,
+        });
       } catch (error) {
         console.error("Remove saved word error:", error);
       }
