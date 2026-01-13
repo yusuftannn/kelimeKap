@@ -38,7 +38,12 @@ export default function useAuth() {
 
       router.replace("/(tabs)");
     } catch (err) {
-      setError("Giriş yapılamadı!", err);
+      console.log("Giriş yapılamadı!", err);
+      Toast.show({
+        type: "error",
+        text1: "Giriş Başarısız",
+        text2: "Lütfen bilgilerinizi kontrol edin ve tekrar deneyin.",
+      });
     } finally {
       setLoading(false);
     }
@@ -60,7 +65,7 @@ export default function useAuth() {
 
       router.replace("/(auth)/login");
     } catch (e) {
-      setError("Kayıt başarısız");
+      console.log("Kayıt başarısız", e);
 
       Toast.show({
         type: "error",
@@ -103,6 +108,11 @@ export default function useAuth() {
       });
     } catch (e) {
       console.log("User refresh error:", e);
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "User refresh bir hata oluştu.",
+      });
     }
   };
 

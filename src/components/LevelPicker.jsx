@@ -1,8 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { LevelService } from "../services/level.service";
-
 export default function LevelPicker({ value, onChange }) {
   const [levels, setLevels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +17,12 @@ export default function LevelPicker({ value, onChange }) {
       setLevels(data);
     } catch (e) {
       console.log("Level picker error:", e);
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Seviyeler yüklenirken bir sorun oluştu.",
+        visibilityTime: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -40,7 +46,7 @@ export default function LevelPicker({ value, onChange }) {
           <Picker.Item
             key={lvl.id}
             label={`${lvl.code} · ${lvl.title}`}
-            value={lvl.code} 
+            value={lvl.code}
           />
         ))}
       </Picker>

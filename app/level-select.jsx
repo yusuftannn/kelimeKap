@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import Button from "../src/components/Button";
 import PageHeader from "../src/components/PageHeader";
 import { LevelService } from "../src/services/level.service";
@@ -43,6 +44,12 @@ export default function LevelSelect() {
       setLevels(data);
     } catch (e) {
       console.log("Level load error:", e);
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Seviyeler yüklenirken hata oluştu.",
+        visibilityTime: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -65,6 +72,12 @@ export default function LevelSelect() {
       router.replace("/(tabs)");
     } catch (e) {
       console.log("Level save error:", e);
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Seviyeler kaydedilirken hata oluştu.",
+        visibilityTime: 2500,
+      });
     } finally {
       setSaving(false);
     }

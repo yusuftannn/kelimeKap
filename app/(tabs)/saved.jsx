@@ -29,7 +29,12 @@ export default function Saved() {
       const data = await WordService.getSavedWords(user.id);
       setWords(data);
     } catch (error) {
-      console.error("Saved words load error:", error);
+      console.log("Saved words load error:", error);
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelimeler yüklenirken hata oluştu.",
+      });
     } finally {
       setLoading(false);
     }
@@ -54,7 +59,12 @@ export default function Saved() {
           visibilityTime: 2000,
         });
       } catch (error) {
-        console.error("Remove saved word error:", error);
+        console.log("Remove saved word error:", error);
+        Toast.show({
+          type: "error",
+          text1: "Hata",
+          text2: "Kelime kaldırılırken hata oluştu.",
+        });
       }
     },
     [user?.id]
@@ -126,7 +136,10 @@ export default function Saved() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
   center: {
     flex: 1,
     justifyContent: "center",

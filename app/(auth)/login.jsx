@@ -15,7 +15,7 @@ import Input from "../../src/components/Input";
 import useAuth from "../../src/hooks/useAuth";
 
 export default function Login() {
-  const { login, guestLogin, loading, error } = useAuth();
+  const { login, guestLogin, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,8 +57,6 @@ export default function Login() {
           />
         </TouchableOpacity>
       </View>
-
-      {error && <Text style={styles.error}>{error}</Text>}
 
       {loading ? (
         <ActivityIndicator size="large" color="#2E6EF7" />
@@ -121,11 +119,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  error: {
-    color: "red",
-    marginBottom: 10,
-    fontWeight: "600",
-  },
   logo: {
     width: 150,
     height: 150,

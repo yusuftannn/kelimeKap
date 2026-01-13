@@ -50,10 +50,27 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, justifyContent: "center" },
-  title: { fontSize: 32, fontWeight: "700", marginBottom: 6 },
-  subtitle: { fontSize: 20, marginBottom: 20, color: "#555" },
-  img: { width: "100%", height: 200, resizeMode: "contain", marginBottom: 20 },
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 20,
+    marginBottom: 20,
+    color: "#555",
+  },
+  img: {
+    width: "100%",
+    height: 200,
+    resizeMode: "contain",
+    marginBottom: 20,
+  },
   content: {
     alignItems: "center",
     marginBottom: 20,

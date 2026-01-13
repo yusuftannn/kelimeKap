@@ -1,20 +1,20 @@
 import { Picker } from "@react-native-picker/picker";
 import {
-    collection,
-    doc,
-    getDocs,
-    orderBy,
-    query,
-    updateDoc,
+  collection,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  updateDoc,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import {
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import Toast from "react-native-toast-message";

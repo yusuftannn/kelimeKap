@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 import Button from "../../src/components/Button";
 import PageHeader from "../../src/components/PageHeader";
 import WordCard from "../../src/components/WordCard";
@@ -39,6 +40,12 @@ export default function WordCardScreen() {
 
       if (!data || data.length === 0) {
         setError("Çalışılacak kelime bulunamadı.");
+        Toast.show({
+          type: "error",
+          text1: "Kelime bulunamadı",
+          text2: "Bu seviye için çalışılacak kelime yok.",
+          visibilityTime: 2500,
+        });
         return;
       }
 
@@ -46,6 +53,12 @@ export default function WordCardScreen() {
     } catch (e) {
       console.log("WORD LOAD ERROR:", e);
       setError("Kelimeler yüklenemedi.");
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelimeler yüklenirken bir sorun oluştu.",
+        visibilityTime: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -63,44 +76,92 @@ export default function WordCardScreen() {
       setIndex((prev) => prev + 1);
     }
   };
+
   const handleCorrect = async () => {
-    setActionType("correct");
+    try {
+      setActionType("correct");
 
-    const userWordId = await WordService.getOrCreateUserWord(
-      user.id,
-      currentWord.id
-    );
+      const userWordId = await WordService.getOrCreateUserWord(
+        user.id,
+        currentWord.id
+      );
 
-    await WordService.markCorrect(userWordId);
-    goNext();
+      await WordService.markCorrect(userWordId);
+      goNext();
+    } catch (e) {
+      console.log("CORRECT ERROR:", e);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelime işaretlenirken hata oluştu.",
+        visibilityTime: 2500,
+      });
+
+      setActionType(null);
+    }
   };
+
   const handleWrong = async () => {
-    setActionType("wrong");
+    try {
+      setActionType("wrong");
 
-    const userWordId = await WordService.getOrCreateUserWord(
-      user.id,
-      currentWord.id
-    );
+      const userWordId = await WordService.getOrCreateUserWord(
+        user.id,
+        currentWord.id
+      );
 
-    await WordService.markWrong(userWordId);
-    goNext();
+      await WordService.markWrong(userWordId);
+      goNext();
+    } catch (e) {
+      console.log("WRONG ERROR:", e);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelime işaretlenirken hata oluştu.",
+        visibilityTime: 2500,
+      });
+
+      setActionType(null);
+    }
   };
 
   const handleSave = async () => {
     if (actionType) return;
 
-    setActionType("save");
+    try {
+      setActionType("save");
 
-    const userWordId = await WordService.getOrCreateUserWord(
-      user.id,
-      currentWord.id
-    );
+      const userWordId = await WordService.getOrCreateUserWord(
+        user.id,
+        currentWord.id
+      );
 
-    await WordService.toggleSaved(userWordId, true);
+      await WordService.toggleSaved(userWordId, true);
 
-    setSaved(true);
-    setActionType(null);
+      setSaved(true);
+
+      Toast.show({
+        type: "success",
+        text1: "Başarılı",
+        text2: "Kelime kaydedildi.",
+        visibilityTime: 2000,
+      });
+    } catch (e) {
+      console.log("SAVE ERROR:", e);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Kelime kaydedilemedi.",
+        visibilityTime: 2500,
+      });
+    } finally {
+      setActionType(null);
+    }
   };
+
   useEffect(() => {
     setSaved(false);
     setActionType(null);

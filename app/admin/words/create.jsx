@@ -56,7 +56,7 @@ export default function CreateWord() {
         visibilityTime: 2000,
       });
     } catch (error) {
-      console.error("Create word error:", error);
+      console.log("Create word error:", error);
 
       Toast.show({
         type: "error",

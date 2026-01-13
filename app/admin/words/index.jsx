@@ -90,7 +90,7 @@ export default function AdminWords() {
         visibilityTime: 2000,
       });
     } catch (error) {
-      console.error("Update word error:", error);
+      console.log("Update word error:", error);
 
       Toast.show({
         type: "error",
@@ -123,7 +123,7 @@ export default function AdminWords() {
                 visibilityTime: 2000,
               });
             } catch (error) {
-              console.error("Delete word error:", error);
+              console.log("Delete word error:", error);
 
               Toast.show({
                 type: "error",
@@ -146,32 +146,29 @@ export default function AdminWords() {
           placeholder="Kelime ara (EN / TR)"
           value={search}
           onChangeText={setSearch}
-          style={{
-            borderWidth: 1,
-            borderColor: "#e5e7eb",
-            borderRadius: 10,
-            padding: 12,
-            backgroundColor: "#fff",
-          }}
+          style={styles.searchInput}
         />
 
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-          {LEVELS.map((l) => (
-            <TouchableOpacity
-              key={l}
-              onPress={() => setLevel(l)}
-              style={{
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                borderRadius: 999,
-                backgroundColor: level === l ? "#2563eb" : "#f3f4f6",
-              }}
-            >
-              <Text style={{ color: level === l ? "#fff" : "#000" }}>
-                {l === "ALL" ? "Tümü" : l}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        <View style={styles.levelContainer}>
+          {LEVELS.map((l) => {
+            const active = level === l;
+            return (
+              <TouchableOpacity
+                key={l}
+                onPress={() => setLevel(l)}
+                style={[styles.levelButton, active && styles.levelButtonActive]}
+              >
+                <Text
+                  style={[
+                    styles.levelButtonText,
+                    active && styles.levelButtonTextActive,
+                  ]}
+                >
+                  {l === "ALL" ? "Tümü" : l}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         <Text style={{ fontSize: 13, color: "#6b7280" }}>
@@ -189,34 +186,15 @@ export default function AdminWords() {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => setEditWord(item)}
-              style={{
-                marginHorizontal: 16,
-                marginBottom: 12,
-                padding: 14,
-                borderRadius: 12,
-                backgroundColor: "#fff",
-                borderWidth: 1,
-                borderColor: "#e5e7eb",
-              }}
+              style={styles.wordCard}
             >
-              <Text style={{ fontWeight: "700" }}>{item.en}</Text>
-              <Text style={{ color: "#6b7280" }}>{item.tr}</Text>
+              <Text style={styles.wordTitle}>{item.en}</Text>
+              <Text style={styles.wordSub}>{item.tr}</Text>
 
-              <Text style={{ fontSize: 12, marginTop: 6 }}>
-                EN: {item.example_en}
-              </Text>
-              <Text style={{ fontSize: 12 }}>TR: {item.example_tr}</Text>
+              <Text style={styles.exampleText}>EN: {item.example_en}</Text>
+              <Text style={styles.exampleText}>TR: {item.example_tr}</Text>
 
-              <Text
-                style={{
-                  marginTop: 6,
-                  fontSize: 12,
-                  fontWeight: "600",
-                  color: "#3730a3",
-                }}
-              >
-                {item.level}
-              </Text>
+              <Text style={styles.wordLevel}>{item.level}</Text>
             </TouchableOpacity>
           )}
         />
@@ -232,18 +210,14 @@ export default function AdminWords() {
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
               <Text style={styles.modalTitle}>Kelime Düzenle</Text>
-              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-                EN
-              </Text>
+              <Text style={styles.modalText}>EN</Text>
               <TextInput
                 placeholder="English"
                 value={editWord.en}
                 onChangeText={(v) => setEditWord({ ...editWord, en: v })}
                 style={styles.input}
               />
-              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-                TR
-              </Text>
+              <Text style={styles.modalText}>TR</Text>
 
               <TextInput
                 placeholder="Türkçe"
@@ -251,9 +225,7 @@ export default function AdminWords() {
                 onChangeText={(v) => setEditWord({ ...editWord, tr: v })}
                 style={styles.input}
               />
-              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-                EN Örnek
-              </Text>
+              <Text style={styles.modalText}>EN Örnek</Text>
 
               <TextInput
                 placeholder="Example EN"
@@ -263,9 +235,7 @@ export default function AdminWords() {
                 }
                 style={styles.input}
               />
-              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
-                TR Örnek
-              </Text>
+              <Text style={styles.modalText}>TR Örnek</Text>
               <TextInput
                 placeholder="Example TR"
                 value={editWord.example_tr}
@@ -276,20 +246,9 @@ export default function AdminWords() {
               />
 
               <View>
-                <Text
-                  style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}
-                >
-                  Level
-                </Text>
+                <Text style={styles.modalText}>Level</Text>
 
-                <View
-                  style={{
-                    borderWidth: 1,
-                    borderColor: "#e5e7eb",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                  }}
-                >
+                <View style={styles.pickerWrapper}>
                   <Picker
                     selectedValue={editWord.level}
                     onValueChange={(v) =>
@@ -332,12 +291,64 @@ export default function AdminWords() {
   );
 }
 const styles = StyleSheet.create({
-  input: {
+  container: {
+    padding: 16,
+    gap: 12,
+  },
+
+  searchInput: {
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 10,
+    padding: 12,
     backgroundColor: "#fff",
+  },
+
+  levelContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  levelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "#f3f4f6",
+  },
+  levelButtonActive: {
+    backgroundColor: "#2563eb",
+  },
+  levelButtonText: {
+    color: "#000",
+  },
+  levelButtonTextActive: {
+    color: "#fff",
+  },
+
+  wordCard: {
+    marginHorizontal: 16,
+    marginBottom: 12,
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+  },
+  wordTitle: {
+    fontWeight: "700",
+  },
+  wordSub: {
+    color: "#6b7280",
+  },
+  exampleText: {
+    fontSize: 12,
+    marginTop: 6,
+  },
+  wordLevel: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#3730a3",
   },
 
   modalOverlay: {
@@ -357,6 +368,28 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 4,
   },
+  modalText: {
+    fontSize: 12,
+    color: "#6b7280",
+    marginBottom: 4,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 8,
+    padding: 10,
+    backgroundColor: "#fff",
+    marginBottom: 8,
+  },
+
+  pickerWrapper: {
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+
   modalActions: {
     flexDirection: "row",
     gap: 10,
