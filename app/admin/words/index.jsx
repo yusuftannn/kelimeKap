@@ -1,4 +1,3 @@
-import { Picker } from "@react-native-picker/picker";
 import {
   collection,
   deleteDoc,
@@ -23,6 +22,7 @@ import {
 import Toast from "react-native-toast-message";
 import AdminGuard from "../../../src/components/AdminGuard";
 import Button from "../../../src/components/Button";
+import LevelPicker from "../../../src/components/LevelPicker";
 import PageHeader from "../../../src/components/PageHeader";
 import { db } from "../../../src/services/firebase";
 
@@ -248,18 +248,11 @@ export default function AdminWords() {
               <View>
                 <Text style={styles.modalText}>Level</Text>
 
-                <View style={styles.pickerWrapper}>
-                  <Picker
-                    selectedValue={editWord.level}
-                    onValueChange={(v) =>
-                      setEditWord({ ...editWord, level: v })
-                    }
-                  >
-                    {LEVELS.map((l) => (
-                      <Picker.Item key={l} label={l} value={l} />
-                    ))}
-                  </Picker>
-                </View>
+                <LevelPicker
+                  value={editWord.level}
+                  onChange={(v) => setEditWord({ ...editWord, level: v })}
+                  levels={LEVELS.filter((l) => l !== "ALL")}
+                />
               </View>
 
               <View style={styles.modalActions}>

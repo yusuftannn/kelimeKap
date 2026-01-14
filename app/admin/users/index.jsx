@@ -1,4 +1,3 @@
-import { Picker } from "@react-native-picker/picker";
 import {
   collection,
   doc,
@@ -16,11 +15,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 import Toast from "react-native-toast-message";
 import AdminGuard from "../../../src/components/AdminGuard";
 import Button from "../../../src/components/Button";
 import PageHeader from "../../../src/components/PageHeader";
+import Select from "../../../src/components/Select";
 import { db } from "../../../src/services/firebase";
 
 export default function AdminUsers() {
@@ -149,12 +148,16 @@ export default function AdminUsers() {
             <Text style={styles.readonly}>{selectedUser?.level ?? "-"}</Text>
 
             <Text style={styles.label}>Rol</Text>
-            <View style={styles.pickerWrapper}>
-              <Picker selectedValue={role} onValueChange={setRole}>
-                <Picker.Item label="User" value="user" />
-                <Picker.Item label="Admin" value="admin" />
-              </Picker>
-            </View>
+            <Select
+              title="Rol Seç"
+              placeholder="Rol seç"
+              value={role}
+              onChange={setRole}
+              options={[
+                { label: "User", value: "user" },
+                { label: "Admin", value: "admin" },
+              ]}
+            />
 
             <View style={styles.modalActions}>
               <Button

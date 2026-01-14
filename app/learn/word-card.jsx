@@ -145,7 +145,7 @@ export default function WordCardScreen() {
       Toast.show({
         type: "success",
         text1: "Başarılı",
-        text2: "Kelime kaydedildi.",
+        text2: "Kelime başarıyla kaydedildi.",
         visibilityTime: 2000,
       });
     } catch (e) {

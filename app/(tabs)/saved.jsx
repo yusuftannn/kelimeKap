@@ -94,6 +94,7 @@ export default function Saved() {
         <TextInput
           style={styles.search}
           placeholder="Kelime ara (EN / TR)"
+          placeholderTextColor="#9CA3AF"
           value={search}
           onChangeText={setSearch}
           autoCorrect={false}
@@ -109,7 +110,7 @@ export default function Saved() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 24 }}
           ListEmptyComponent={
-            <Text style={styles.empty}>Aramanıza uygun kelime bulunamadı.</Text>
+            <Text style={styles.empty}>Kaydedilen kelime bulunamadı.</Text>
           }
           renderItem={({ item }) => (
             <View style={styles.card}>
