@@ -4,7 +4,6 @@ import {
   signOut,
   UserCredential,
 } from "firebase/auth";
-import { useAuthStore } from "../store/useAuthStore";
 import { auth } from "./firebase";
 import { UserService } from "./user.service";
 
@@ -21,15 +20,10 @@ export const AuthService = {
       password
     );
 
-    const user: AuthUser = {
+    return {
       id: result.user.uid,
       email: result.user.email,
     };
-
-    const { setUser } = useAuthStore.getState();
-    setUser(user);
-
-    return user;
   },
 
   async register(email: string, password: string): Promise<AuthUser> {
@@ -51,7 +45,5 @@ export const AuthService = {
 
   async logout(): Promise<void> {
     await signOut(auth);
-    const { logout } = useAuthStore.getState();
-    logout();
   },
 };

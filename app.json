@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "KelimeKap",
+    "slug": "kelimekap",
+    "scheme": "kelimekap",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "extra": {
+      "router": {
+        "origin": "kelimekap://"
+      }
+    }
+  }
+}
