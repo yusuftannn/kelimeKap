@@ -4,7 +4,7 @@ import { WordService } from "../services/words.service";
 import { useWordStore } from "../store/useWordStore";
 
 export default function useWords() {
-  const { level, words, currentIndex, nextWord, resetWords } = useWordStore();
+  const { level, words, currentIndex, nextWord } = useWordStore();
   const [loading, setLoading] = useState(false);
 
   const loadWords = async () => {

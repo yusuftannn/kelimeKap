@@ -3,25 +3,42 @@ import {
   getDoc,
   serverTimestamp,
   setDoc,
-  updateDoc,
+  updateDoc
 } from "firebase/firestore";
 import { db } from "./firebase";
 
+
+export interface AppUser {
+  userId: string;
+  email: string;
+  createdAt: unknown;
+  lastLogin: unknown;
+  updatedAt?: unknown;
+  level: string | null;
+  role: "user" | "admin";
+  username: string | null;
+  name: string | null;
+}
+
+export type UpdateUserProfile = Partial<
+  Pick<AppUser, "level" | "username" | "name" | "role">
+>;
+
 export const UserService = {
-  async createUser(uid, email) {
+  async createUser(uid: string, email: string): Promise<void> {
     await setDoc(doc(db, "users", uid), {
       userId: uid,
-      email: email,
+      email,
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       level: null,
       role: "user",
       username: null,
       name: null,
-    });
+    } satisfies AppUser);
   },
 
-  async updateLastLogin(uid) {
+  async updateLastLogin(uid: string): Promise<void> {
     await setDoc(
       doc(db, "users", uid),
       {
@@ -31,18 +48,19 @@ export const UserService = {
     );
   },
 
-  async getUser(uid) {
+  async getUser(uid: string): Promise<AppUser | null> {
     const ref = doc(db, "users", uid);
     const snap = await getDoc(ref);
 
-    if (snap.exists()) {
-      return snap.data();
-    }
+    if (!snap.exists()) return null;
 
-    return null;
+    return snap.data() as AppUser;
   },
 
-  async updateProfile(uid, data) {
+  async updateProfile(
+    uid: string,
+    data: UpdateUserProfile
+  ): Promise<void> {
     if (!uid || uid === "guest") return;
 
     await updateDoc(doc(db, "users", uid), {

@@ -1,0 +1,57 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  UserCredential,
+} from "firebase/auth";
+import { useAuthStore } from "../store/useAuthStore";
+import { auth } from "./firebase";
+import { UserService } from "./user.service";
+
+export interface AuthUser {
+  id: string;
+  email: string | null;
+}
+
+export const AuthService = {
+  async login(email: string, password: string): Promise<AuthUser> {
+    const result: UserCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const user: AuthUser = {
+      id: result.user.uid,
+      email: result.user.email,
+    };
+
+    const { setUser } = useAuthStore.getState();
+    setUser(user);
+
+    return user;
+  },
+
+  async register(email: string, password: string): Promise<AuthUser> {
+    const result: UserCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const uid: string = result.user.uid;
+
+    await UserService.createUser(uid, email);
+
+    return {
+      id: uid,
+      email: result.user.email,
+    };
+  },
+
+  async logout(): Promise<void> {
+    await signOut(auth);
+    const { logout } = useAuthStore.getState();
+    logout();
+  },
+};
