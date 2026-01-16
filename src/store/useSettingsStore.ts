@@ -1,7 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export const useSettingsStore = create(
+export type ThemeMode = "light" | "dark";
+
+interface SettingsState {
+  theme: ThemeMode;
+  soundEnabled: boolean;
+  notificationsEnabled: boolean;
+
+  toggleTheme: () => void;
+  toggleSound: () => void;
+  toggleNotifications: () => void;
+}
+
+export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       theme: "light",

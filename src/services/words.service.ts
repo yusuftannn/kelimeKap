@@ -13,9 +13,6 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 
-/* =======================
-   MODELLER & TİPLER
-======================= */
 
 export type WordStatus = "new" | "learning" | "known" | "saved";
 
@@ -48,10 +45,6 @@ export interface UserStats {
   correct: number;
   wrong: number;
 }
-
-/* =======================
-   SERVICE
-======================= */
 
 export const WordService = {
   async getWordsByLevel(level: string): Promise<Word[]> {

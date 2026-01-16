@@ -2,17 +2,30 @@ import { router } from "expo-router";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import { AuthService } from "../services/auth.service";
+import type { AppUser } from "../services/user.service";
 import { UserService } from "../services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
 
-export default function useAuth() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+interface UseAuthReturn {
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
+  guestLogin: () => void;
+  refreshUser: () => Promise<void>;
+  logout: () => Promise<void>;
+  loading: boolean;
+  error: string | null;
+}
 
+export default function useAuth(): UseAuthReturn {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const hydrated = useAuthStore((s) => s.hydrated);
   const setUser = useAuthStore((s) => s.setUser);
   const setGuest = useAuthStore((s) => s.setGuest);
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string): Promise<void> => {
+    if (!hydrated) return;
     try {
       setLoading(true);
       setError(null);
@@ -20,7 +33,7 @@ export default function useAuth() {
       const result = await AuthService.login(email, password);
       const uid = result.id;
 
-      const userData = await UserService.getUser(uid);
+      const userData: AppUser | null = await UserService.getUser(uid);
 
       setUser({
         id: uid,
@@ -39,6 +52,8 @@ export default function useAuth() {
       router.replace("/(tabs)");
     } catch (err) {
       console.log("Giriş yapılamadı!", err);
+      setError("LOGIN_FAILED");
+
       Toast.show({
         type: "error",
         text1: "Giriş Başarısız",
@@ -49,7 +64,7 @@ export default function useAuth() {
     }
   };
 
-  const register = async (email, password) => {
+  const register = async (email: string, password: string): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
@@ -64,8 +79,9 @@ export default function useAuth() {
       });
 
       router.replace("/(auth)/login");
-    } catch (e) {
-      console.log("Kayıt başarısız", e);
+    } catch (err) {
+      console.log("Kayıt başarısız", err);
+      setError("REGISTER_FAILED");
 
       Toast.show({
         type: "error",
@@ -77,12 +93,11 @@ export default function useAuth() {
     }
   };
 
-  const guestLogin = () => {
+  const guestLogin = (): void => {
+    if (!hydrated) return;
     setGuest();
 
     const { user } = useAuthStore.getState();
-
-    console.log("Guest user after set:", user);
 
     if (user?.level) {
       router.replace("/(tabs)");
@@ -91,13 +106,16 @@ export default function useAuth() {
     }
   };
 
-  const refreshUser = async () => {
+  const refreshUser = async (): Promise<void> => {
+    if (!hydrated) return;
     const currentUser = useAuthStore.getState().user;
 
     if (!currentUser || currentUser.id === "guest") return;
 
     try {
-      const userData = await UserService.getUser(currentUser.id);
+      const userData: AppUser | null = await UserService.getUser(
+        currentUser.id
+      );
 
       useAuthStore.getState().setUser({
         ...currentUser,
@@ -106,13 +124,36 @@ export default function useAuth() {
         name: userData?.name ?? null,
         username: userData?.username ?? null,
       });
-    } catch (e) {
-      console.log("User refresh error:", e);
+    } catch (err) {
+      console.log("User refresh error:", err);
+
       Toast.show({
         type: "error",
         text1: "Hata",
-        text2: "User refresh bir hata oluştu.",
+        text2: "User refresh sırasında bir hata oluştu.",
       });
+    }
+  };
+
+  const logout = async (): Promise<void> => {
+    try {
+      setLoading(true);
+
+      await AuthService.logout();
+
+      useAuthStore.getState().logout();
+
+      router.replace("/(auth)/login");
+    } catch (err) {
+      console.log("Logout error:", err);
+
+      Toast.show({
+        type: "error",
+        text1: "Hata",
+        text2: "Çıkış yapılırken bir hata oluştu.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,6 +162,7 @@ export default function useAuth() {
     register,
     guestLogin,
     refreshUser,
+    logout,
     loading,
     error,
   };
