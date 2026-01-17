@@ -3,26 +3,10 @@ import {
   getDoc,
   serverTimestamp,
   setDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
+import { AppUser, UpdateUserProfile } from "../types";
 import { db } from "./firebase";
-
-
-export interface AppUser {
-  userId: string;
-  email: string;
-  createdAt: unknown;
-  lastLogin: unknown;
-  updatedAt?: unknown;
-  level: string | null;
-  role: "user" | "admin";
-  username: string | null;
-  name: string | null;
-}
-
-export type UpdateUserProfile = Partial<
-  Pick<AppUser, "level" | "username" | "name" | "role">
->;
 
 export const UserService = {
   async createUser(uid: string, email: string): Promise<void> {
@@ -57,10 +41,7 @@ export const UserService = {
     return snap.data() as AppUser;
   },
 
-  async updateProfile(
-    uid: string,
-    data: UpdateUserProfile
-  ): Promise<void> {
+  async updateProfile(uid: string, data: UpdateUserProfile): Promise<void> {
     if (!uid || uid === "guest") return;
 
     await updateDoc(doc(db, "users", uid), {

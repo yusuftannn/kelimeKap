@@ -11,40 +11,13 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import {
+  UserStats,
+  UserWord,
+  Word,
+  WordStatus
+} from "../types";
 import { db } from "./firebase";
-
-
-export type WordStatus = "new" | "learning" | "known" | "saved";
-
-export interface Word {
-  id: string;
-  word: string;
-  meaning: string;
-  level: string;
-  example_en?: string;
-  example_tr?: string;
-}
-
-export interface UserWord {
-  userId: string;
-  wordId: string;
-  correctCount: number;
-  wrongCount: number;
-  saved: boolean;
-  status: WordStatus;
-  lastSeenAt: unknown;
-  updatedAt: unknown;
-}
-
-export interface UserStats {
-  total: number;
-  known: number;
-  learning: number;
-  new: number;
-  saved: number;
-  correct: number;
-  wrong: number;
-}
 
 export const WordService = {
   async getWordsByLevel(level: string): Promise<Word[]> {
@@ -59,10 +32,7 @@ export const WordService = {
     );
   },
 
-  async getOrCreateUserWord(
-    userId: string,
-    wordId: string
-  ): Promise<string> {
+  async getOrCreateUserWord(userId: string, wordId: string): Promise<string> {
     const q = query(
       collection(db, "userWords"),
       where("userId", "==", userId),
@@ -107,10 +77,7 @@ export const WordService = {
     });
   },
 
-  async toggleSaved(
-    userWordId: string,
-    saved: boolean
-  ): Promise<void> {
+  async toggleSaved(userWordId: string, saved: boolean): Promise<void> {
     await updateDoc(doc(db, "userWords", userWordId), {
       saved,
       status: saved ? "saved" : "learning",
@@ -142,10 +109,7 @@ export const WordService = {
     );
   },
 
-  async removeSavedWord(
-    userId: string,
-    wordId: string
-  ): Promise<void> {
+  async removeSavedWord(userId: string, wordId: string): Promise<void> {
     const q = query(
       collection(db, "userWords"),
       where("userId", "==", userId),
@@ -169,10 +133,7 @@ export const WordService = {
   },
 
   async getUserStats(userId: string): Promise<UserStats> {
-    const q = query(
-      collection(db, "userWords"),
-      where("userId", "==", userId)
-    );
+    const q = query(collection(db, "userWords"), where("userId", "==", userId));
 
     const snap = await getDocs(q);
 

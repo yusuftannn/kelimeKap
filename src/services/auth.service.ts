@@ -4,13 +4,9 @@ import {
   signOut,
   UserCredential,
 } from "firebase/auth";
+import { AuthUser } from "../types";
 import { auth } from "./firebase";
 import { UserService } from "./user.service";
-
-export interface AuthUser {
-  id: string;
-  email: string | null;
-}
 
 export const AuthService = {
   async login(email: string, password: string): Promise<AuthUser> {

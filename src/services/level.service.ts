@@ -6,14 +6,8 @@ import {
   query,
   QueryDocumentSnapshot,
 } from "firebase/firestore";
+import { Level } from "../types";
 import { db } from "./firebase";
-
-export interface Level {
-  id: string;
-  title: string;
-  order: number;
-  description?: string;
-}
 
 export const LevelService = {
   async getLevels(): Promise<Level[]> {
