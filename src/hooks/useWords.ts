@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import type { Word } from "../services/words.service";
 import { WordService } from "../services/words.service";
 import { useWordStore } from "../store/useWordStore";
+import type { Word } from "../types";
 
 interface UseWordsReturn {
   loadWords: () => Promise<void>;
@@ -13,14 +13,8 @@ interface UseWordsReturn {
 }
 
 export default function useWords(): UseWordsReturn {
-  const {
-    level,
-    words,
-    currentIndex,
-    nextWord,
-    setWords,
-    resetWords,
-  } = useWordStore();
+  const { level, words, currentIndex, nextWord, setWords, resetWords } =
+    useWordStore();
 
   const [loading, setLoading] = useState<boolean>(false);
 

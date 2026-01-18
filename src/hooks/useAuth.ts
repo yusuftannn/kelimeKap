@@ -2,13 +2,16 @@ import { router } from "expo-router";
 import { useState } from "react";
 import Toast from "react-native-toast-message";
 import { AuthService } from "../services/auth.service";
-import type { AppUser } from "../services/user.service";
 import { UserService } from "../services/user.service";
 import { useAuthStore } from "../store/useAuthStore";
 
 interface UseAuthReturn {
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    username: string,
+  ) => Promise<void>;
   guestLogin: () => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
@@ -17,72 +20,139 @@ interface UseAuthReturn {
 }
 
 export default function useAuth(): UseAuthReturn {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hydrated = useAuthStore((s) => s.hydrated);
   const setUser = useAuthStore((s) => s.setUser);
   const setGuest = useAuthStore((s) => s.setGuest);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (identifier: string, password: string): Promise<void> => {
     if (!hydrated) return;
+
     try {
       setLoading(true);
       setError(null);
 
+      let email = identifier.trim().toLowerCase();
+
+      if (!email.includes("@")) {
+        const userByUsername = await UserService.getUserByUsername(email);
+
+        if (!userByUsername) {
+          throw new Error("USER_NOT_FOUND");
+        }
+
+        email = userByUsername.email;
+      }
+
       const result = await AuthService.login(email, password);
       const uid = result.id;
 
-      const userData: AppUser | null = await UserService.getUser(uid);
+      const userData = await UserService.getUser(uid);
+
+      if (!userData) {
+        throw new Error("USER_DOC_NOT_FOUND");
+      }
 
       setUser({
         id: uid,
-        email: result.email,
-        name: userData?.name ?? null,
-        level: userData?.level ?? null,
-        username: userData?.username ?? null,
-        role: userData?.role ?? "user",
+        email: userData.email,
+        name: userData.name ?? null,
+        level: userData.level ?? null,
+        username: userData.username ?? null,
+        role: userData.role ?? "user",
       });
 
-      if (!userData?.level) {
+      if (!userData.level) {
         router.replace("/level-select");
-        return;
+      } else {
+        router.replace("/(tabs)");
       }
-
-      router.replace("/(tabs)");
     } catch (err) {
-      console.log("Giriş yapılamadı!", err);
+      console.log("Login error:", err);
       setError("LOGIN_FAILED");
 
       Toast.show({
         type: "error",
         text1: "Giriş Başarısız",
-        text2: "Lütfen bilgilerinizi kontrol edin ve tekrar deneyin.",
+        text2: "Email / kullanıcı adı veya şifre hatalı.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const register = async (email: string, password: string): Promise<void> => {
+  const register = async (
+    email: string,
+    password: string,
+    username: string,
+  ): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
 
-      await AuthService.register(email, password);
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedUsername = username.trim().toLowerCase();
+
+      const isTaken = await UserService.isUsernameTaken(normalizedUsername);
+
+      if (isTaken) {
+        Toast.show({
+          type: "error",
+          text1: "Kullanıcı Adı Kullanılıyor",
+          text2: "Lütfen farklı bir kullanıcı adı seçin.",
+        });
+        return;
+      }
+
+      const result = await AuthService.register(normalizedEmail, password);
+
+      await UserService.createUser(
+        result.id,
+        normalizedEmail,
+        normalizedUsername,
+      );
 
       Toast.show({
         type: "success",
-        text1: "Hoş geldin",
+        text1: "Hoş Geldin!",
         text2: "Hesabın başarıyla oluşturuldu.",
         visibilityTime: 2000,
       });
 
       router.replace("/(auth)/login");
-    } catch (err) {
-      console.log("Kayıt başarısız", err);
-      setError("REGISTER_FAILED");
+    } catch (err: any) {
+      console.log("Register error:", err);
 
+      if (err?.code === "auth/email-already-in-use") {
+        Toast.show({
+          type: "error",
+          text1: "Bu Email Zaten Kullanılıyor",
+          text2: "Lütfen farklı bir email adresi deneyin.",
+        });
+        return;
+      }
+
+      if (err?.code === "auth/invalid-email") {
+        Toast.show({
+          type: "error",
+          text1: "Geçersiz Email",
+          text2: "Lütfen geçerli bir email adresi girin.",
+        });
+        return;
+      }
+
+      if (err?.code === "auth/weak-password") {
+        Toast.show({
+          type: "error",
+          text1: "Zayıf Şifre",
+          text2: "Şifre en az 6 karakter olmalıdır.",
+        });
+        return;
+      }
+
+      setError("REGISTER_FAILED");
       Toast.show({
         type: "error",
         text1: "Kayıt Başarısız",
@@ -95,6 +165,7 @@ export default function useAuth(): UseAuthReturn {
 
   const guestLogin = (): void => {
     if (!hydrated) return;
+
     setGuest();
 
     const { user } = useAuthStore.getState();
@@ -108,50 +179,34 @@ export default function useAuth(): UseAuthReturn {
 
   const refreshUser = async (): Promise<void> => {
     if (!hydrated) return;
-    const currentUser = useAuthStore.getState().user;
 
+    const currentUser = useAuthStore.getState().user;
     if (!currentUser || currentUser.id === "guest") return;
 
     try {
-      const userData: AppUser | null = await UserService.getUser(
-        currentUser.id
-      );
+      const userData = await UserService.getUser(currentUser.id);
+      if (!userData) return;
 
-      useAuthStore.getState().setUser({
+      setUser({
         ...currentUser,
-        role: userData?.role ?? "user",
-        level: userData?.level ?? null,
-        name: userData?.name ?? null,
-        username: userData?.username ?? null,
+        role: userData.role ?? "user",
+        level: userData.level ?? null,
+        name: userData.name ?? null,
+        username: userData.username ?? null,
       });
     } catch (err) {
-      console.log("User refresh error:", err);
-
-      Toast.show({
-        type: "error",
-        text1: "Hata",
-        text2: "User refresh sırasında bir hata oluştu.",
-      });
+      console.log("Refresh user error:", err);
     }
   };
 
   const logout = async (): Promise<void> => {
     try {
       setLoading(true);
-
       await AuthService.logout();
-
       useAuthStore.getState().logout();
-
       router.replace("/(auth)/login");
     } catch (err) {
       console.log("Logout error:", err);
-
-      Toast.show({
-        type: "error",
-        text1: "Hata",
-        text2: "Çıkış yapılırken bir hata oluştu.",
-      });
     } finally {
       setLoading(false);
     }

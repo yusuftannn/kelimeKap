@@ -34,7 +34,11 @@ export default function Login() {
         <Text style={styles.subtitle}>İngilizce öğrenmeye hazır mısınız?</Text>
       </View>
 
-      <Input placeholder="Email" value={email} onChangeText={setEmail} />
+      <Input
+        placeholder="Email veya Kullanıcı Adı"
+        value={email}
+        onChangeText={setEmail}
+      />
 
       <View style={styles.passwordWrapper}>
         <Input

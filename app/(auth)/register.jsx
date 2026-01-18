@@ -18,8 +18,10 @@ import useAuth from "../../src/hooks/useAuth";
 export default function Register() {
   const { register, loading, error } = useAuth();
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
@@ -34,7 +36,7 @@ export default function Register() {
   }, [error]);
 
   const handleRegister = () => {
-    if (!email || !password || !password2) {
+    if (!email || !username || !password || !password2) {
       Toast.show({
         type: "error",
         text1: "Eksik Bilgi",
@@ -52,7 +54,7 @@ export default function Register() {
       return;
     }
 
-    register(email.trim(), password);
+    register(email.trim(), password, username.trim().toLowerCase());
   };
 
   return (
@@ -61,7 +63,12 @@ export default function Register() {
       <View style={styles.content}>
         <Text style={styles.title}>Kayıt Ol</Text>
       </View>
-
+      <Input
+        placeholder="Kullanıcı Adı"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
       <Input placeholder="Email" value={email} onChangeText={setEmail} />
       <View style={styles.passwordWrapper}>
         <Input

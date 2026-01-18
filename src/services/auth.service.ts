@@ -4,16 +4,19 @@ import {
   signOut,
   UserCredential,
 } from "firebase/auth";
-import { AuthUser } from "../types";
 import { auth } from "./firebase";
-import { UserService } from "./user.service";
+
+export interface AuthResult {
+  id: string;
+  email: string | null;
+}
 
 export const AuthService = {
-  async login(email: string, password: string): Promise<AuthUser> {
+  async login(email: string, password: string): Promise<AuthResult> {
     const result: UserCredential = await signInWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
 
     return {
@@ -22,19 +25,15 @@ export const AuthService = {
     };
   },
 
-  async register(email: string, password: string): Promise<AuthUser> {
+  async register(email: string, password: string): Promise<AuthResult> {
     const result: UserCredential = await createUserWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
 
-    const uid: string = result.user.uid;
-
-    await UserService.createUser(uid, email);
-
     return {
-      id: uid,
+      id: result.user.uid,
       email: result.user.email,
     };
   },

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Word } from "../services/words.service";
+import type { Word } from "../types";
 
 interface WordState {
   level: string | null;
@@ -52,6 +52,6 @@ export const useWordStore = create<WordState>()(
     }),
     {
       name: "word-storage",
-    }
-  )
+    },
+  ),
 );

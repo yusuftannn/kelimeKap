@@ -27,7 +27,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isGuest: false,
@@ -50,8 +50,8 @@ export const useAuthStore = create<AuthState>()(
               id: "guest",
               role: "guest",
               email: null,
-              name: "",
-              username: "",
+              name: null,
+              username: null,
               level: null,
             },
             token: null,
@@ -65,8 +65,8 @@ export const useAuthStore = create<AuthState>()(
             id: "guest",
             role: "guest",
             email: null,
-            name: "",
-            username: "",
+            name: null,
+            username: null,
             level: null,
           },
           token: null,
@@ -79,6 +79,6 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },
-    }
-  )
+    },
+  ),
 );
