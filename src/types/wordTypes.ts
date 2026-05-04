@@ -14,7 +14,7 @@ export type WordStatus = "new" | "learning" | "known" | "saved";
 export interface UserWord {
   userId: string;
   wordId: string;
-
+  level: string;
   correctCount: number;
   wrongCount: number;
 

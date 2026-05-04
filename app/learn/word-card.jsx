@@ -28,12 +28,21 @@ export default function WordCardScreen() {
     loadWords();
   }, [user?.level, loadWords]);
 
+  function shuffleArray(array) {
+    let arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   const loadWords = useCallback(async () => {
     try {
       let data = [];
 
       if (mode === "saved") {
-        data = await WordService.getSavedWordsForStudy(user.id);
+        data = await WordService.getSavedWordsForStudy(user.id, user.level);
       } else {
         data = await WordService.getWordsByLevel(user.level);
       }
@@ -49,7 +58,7 @@ export default function WordCardScreen() {
         return;
       }
 
-      setWords(data);
+      setWords(shuffleArray(data));
     } catch (e) {
       console.log("WORD LOAD ERROR:", e);
       setError("Kelimeler yüklenemedi.");
@@ -83,7 +92,8 @@ export default function WordCardScreen() {
 
       const userWordId = await WordService.getOrCreateUserWord(
         user.id,
-        currentWord.id
+        currentWord.id,
+        user.level,
       );
 
       await WordService.markCorrect(userWordId);
@@ -108,7 +118,8 @@ export default function WordCardScreen() {
 
       const userWordId = await WordService.getOrCreateUserWord(
         user.id,
-        currentWord.id
+        currentWord.id,
+        user.level,
       );
 
       await WordService.markWrong(userWordId);
@@ -135,7 +146,8 @@ export default function WordCardScreen() {
 
       const userWordId = await WordService.getOrCreateUserWord(
         user.id,
-        currentWord.id
+        currentWord.id,
+        user.level,
       );
 
       await WordService.toggleSaved(userWordId, true);

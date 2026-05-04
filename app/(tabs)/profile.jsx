@@ -26,7 +26,7 @@ export default function Profile() {
         setUsername(user.username || "");
         setLevel(user.level || "");
       }
-    }, [user])
+    }, [user]),
   );
 
   const saveProfile = async () => {

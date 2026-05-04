@@ -18,7 +18,7 @@ export default function Stats() {
 
     try {
       setLoading(true);
-      const response = await WordService.getUserStats(user.id);
+      const response = await WordService.getUserStats(user.id, user.level);
       setStats(response);
     } catch (error) {
       console.log("Stats fetch error:", error);
@@ -30,12 +30,12 @@ export default function Stats() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [user?.id, user?.level]);
 
   useFocusEffect(
     useCallback(() => {
       fetchStats();
-    }, [fetchStats])
+    }, [fetchStats]),
   );
 
   const accuracy = useMemo(() => {

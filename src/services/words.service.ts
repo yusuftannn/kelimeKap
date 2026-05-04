@@ -11,12 +11,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import {
-  UserStats,
-  UserWord,
-  Word,
-  WordStatus
-} from "../types";
+import { UserStats, UserWord, Word, WordStatus } from "../types";
 import { db } from "./firebase";
 
 export const WordService = {
@@ -28,15 +23,20 @@ export const WordService = {
       (doc: QueryDocumentSnapshot<DocumentData>): Word => ({
         id: doc.id,
         ...(doc.data() as Omit<Word, "id">),
-      })
+      }),
     );
   },
 
-  async getOrCreateUserWord(userId: string, wordId: string): Promise<string> {
+  async getOrCreateUserWord(
+    userId: string,
+    wordId: string,
+    level: string,
+  ): Promise<string> {
     const q = query(
       collection(db, "userWords"),
       where("userId", "==", userId),
-      where("wordId", "==", wordId)
+      where("wordId", "==", wordId),
+      where("level", "==", level),
     );
 
     const snap = await getDocs(q);
@@ -48,6 +48,7 @@ export const WordService = {
     const ref = await addDoc(collection(db, "userWords"), {
       userId,
       wordId,
+      level,
       correctCount: 0,
       wrongCount: 0,
       saved: false,
@@ -89,7 +90,7 @@ export const WordService = {
     const q = query(
       collection(db, "userWords"),
       where("userId", "==", userId),
-      where("saved", "==", true)
+      where("saved", "==", true),
     );
 
     const snap = await getDocs(q);
@@ -98,14 +99,14 @@ export const WordService = {
     const wordIds = snap.docs.map((d) => d.data().wordId);
 
     const wordsSnap = await getDocs(
-      query(collection(db, "words"), where("__name__", "in", wordIds))
+      query(collection(db, "words"), where("__name__", "in", wordIds)),
     );
 
     return wordsSnap.docs.map(
       (doc: QueryDocumentSnapshot<DocumentData>): Word => ({
         id: doc.id,
         ...(doc.data() as Omit<Word, "id">),
-      })
+      }),
     );
   },
 
@@ -113,7 +114,7 @@ export const WordService = {
     const q = query(
       collection(db, "userWords"),
       where("userId", "==", userId),
-      where("wordId", "==", wordId)
+      where("wordId", "==", wordId),
     );
 
     const snap = await getDocs(q);
@@ -132,8 +133,12 @@ export const WordService = {
     return this.getSavedWords(userId);
   },
 
-  async getUserStats(userId: string): Promise<UserStats> {
-    const q = query(collection(db, "userWords"), where("userId", "==", userId));
+  async getUserStats(userId: string, level: string): Promise<UserStats> {
+    const q = query(
+      collection(db, "userWords"),
+      where("userId", "==", userId),
+      where("level", "==", level),
+    );
 
     const snap = await getDocs(q);
 
