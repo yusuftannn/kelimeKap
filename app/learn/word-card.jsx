@@ -18,15 +18,11 @@ export default function WordCardScreen() {
   const [actionType, setActionType] = useState(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!user?.level) {
-      router.replace("/level-select");
-      return;
-    }
-
-    loadWords();
-  }, [user?.level, loadWords]);
+  const [sessionStats, setSessionStats] = useState({
+    correct: 0,
+    wrong: 0,
+    saved: 0,
+  });
 
   function shuffleArray(array) {
     let arr = [...array];
@@ -43,6 +39,8 @@ export default function WordCardScreen() {
 
       if (mode === "saved") {
         data = await WordService.getSavedWordsForStudy(user.id, user.level);
+      } else if (mode === "weak") {
+        data = await WordService.getWeakWordsForStudy(user.id, user.level);
       } else {
         data = await WordService.getWordsByLevel(user.level);
       }
@@ -52,7 +50,10 @@ export default function WordCardScreen() {
         Toast.show({
           type: "error",
           text1: "Kelime bulunamadı",
-          text2: "Bu seviye için çalışılacak kelime yok.",
+          text2:
+            mode === "weak"
+              ? "Zorlandığın kelime bulunmuyor."
+              : "Bu seviye için çalışılacak kelime yok.",
           visibilityTime: 2500,
         });
         return;
@@ -73,13 +74,28 @@ export default function WordCardScreen() {
     }
   }, [mode, user?.id, user?.level]);
 
-  const goNext = () => {
+  useEffect(() => {
+    if (!user?.level) {
+      router.replace("/level-select");
+      return;
+    }
+
+    loadWords();
+  }, [user?.level, loadWords]);
+
+  const goNext = (nextStats = sessionStats) => {
     setActionType(null);
 
     if (index + 1 >= words.length) {
       router.replace({
         pathname: "/learn/result",
-        params: { mode },
+        params: {
+          mode,
+          total: words.length,
+          correct: nextStats.correct,
+          wrong: nextStats.wrong,
+          saved: nextStats.saved,
+        },
       });
     } else {
       setIndex((prev) => prev + 1);
@@ -97,7 +113,12 @@ export default function WordCardScreen() {
       );
 
       await WordService.markCorrect(userWordId);
-      goNext();
+      const nextStats = {
+        ...sessionStats,
+        correct: sessionStats.correct + 1,
+      };
+      setSessionStats(nextStats);
+      goNext(nextStats);
     } catch (e) {
       console.log("CORRECT ERROR:", e);
 
@@ -123,7 +144,12 @@ export default function WordCardScreen() {
       );
 
       await WordService.markWrong(userWordId);
-      goNext();
+      const nextStats = {
+        ...sessionStats,
+        wrong: sessionStats.wrong + 1,
+      };
+      setSessionStats(nextStats);
+      goNext(nextStats);
     } catch (e) {
       console.log("WRONG ERROR:", e);
 
@@ -153,6 +179,10 @@ export default function WordCardScreen() {
       await WordService.toggleSaved(userWordId, true);
 
       setSaved(true);
+      setSessionStats((prev) => ({
+        ...prev,
+        saved: prev.saved + 1,
+      }));
 
       Toast.show({
         type: "success",
@@ -196,11 +226,24 @@ export default function WordCardScreen() {
   }
 
   const currentWord = words[index];
+  const progress = words.length ? ((index + 1) / words.length) * 100 : 0;
 
   return (
     <View style={{ flex: 1 }}>
       <PageHeader title="Öğren" showBack={false} />
       <View style={styles.container}>
+        <View style={styles.progressHeader}>
+          <Text style={styles.progressText}>
+            {index + 1} / {words.length}
+          </Text>
+          <Text style={styles.progressMeta}>
+            D: {sessionStats.correct}  Y: {sessionStats.wrong}
+          </Text>
+        </View>
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+        </View>
+
         <WordCard
           front={currentWord.en}
           back={currentWord.tr}
@@ -239,4 +282,32 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   actions: { marginTop: 20 },
+  progressHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  progressText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#101828",
+  },
+  progressMeta: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#667085",
+  },
+  progressTrack: {
+    height: 8,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 20,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#2563EB",
+    borderRadius: 8,
+  },
 });

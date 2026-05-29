@@ -133,6 +133,48 @@ export const WordService = {
     return this.getSavedWords(userId);
   },
 
+  async getWeakWordsForStudy(userId: string, level: string): Promise<Word[]> {
+    const q = query(
+      collection(db, "userWords"),
+      where("userId", "==", userId),
+      where("level", "==", level),
+    );
+
+    const snap = await getDocs(q);
+    if (snap.empty) return [];
+
+    const weakWordIds = snap.docs
+      .map((d) => d.data() as UserWord)
+      .filter((d) => d.wrongCount > 0 || d.status === "learning")
+      .map((d) => d.wordId);
+
+    if (weakWordIds.length === 0) return [];
+
+    const uniqueWordIds = [...new Set(weakWordIds)];
+    const chunks: string[][] = [];
+
+    for (let i = 0; i < uniqueWordIds.length; i += 10) {
+      chunks.push(uniqueWordIds.slice(i, i + 10));
+    }
+
+    const words = await Promise.all(
+      chunks.map(async (ids) => {
+        const wordsSnap = await getDocs(
+          query(collection(db, "words"), where("__name__", "in", ids)),
+        );
+
+        return wordsSnap.docs.map(
+          (doc: QueryDocumentSnapshot<DocumentData>): Word => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Word, "id">),
+          }),
+        );
+      }),
+    );
+
+    return words.flat();
+  },
+
   async getUserStats(userId: string, level: string): Promise<UserStats> {
     const q = query(
       collection(db, "userWords"),

@@ -1,8 +1,9 @@
-import { useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 import Toast from "react-native-toast-message";
+import Button from "../../src/components/Button";
 import PageHeader from "../../src/components/PageHeader";
 import { WordService } from "../../src/services/words.service";
 import { useAuthStore } from "../../src/store/useAuthStore";
@@ -71,6 +72,15 @@ export default function Stats() {
           <KPI title="Doğru" value={stats.correct} color={COLORS.success} />
           <KPI title="Yanlış" value={stats.wrong} color={COLORS.danger} />
         </View>
+
+        {stats.wrong > 0 && (
+          <Button
+            title="Zorlandıklarımı Tekrar Çalış"
+            variant="outline"
+            onPress={() => router.push("/learn/word-card?mode=weak")}
+            style={styles.reviewButton}
+          />
+        )}
 
         <View style={styles.card}>
           <Section title="Kelime Durumu">
@@ -168,6 +178,10 @@ const styles = StyleSheet.create({
 
   kpiRow: {
     flexDirection: "row",
+    marginBottom: 16,
+  },
+  reviewButton: {
+    marginTop: -6,
     marginBottom: 16,
   },
   kpi: {
