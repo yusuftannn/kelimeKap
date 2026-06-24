@@ -1,6 +1,12 @@
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Toast from "react-native-toast-message";
 import Button from "../../src/components/Button";
 import Input from "../../src/components/Input";
@@ -77,26 +83,109 @@ export default function Profile() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
       <PageHeader title="Profil" />
-      <View style={styles.container}>
-        {!isGuest && (
-          <>
-            <Text style={styles.label}>Email</Text>
-            <Text style={styles.readonly}>{user.email}</Text>
-          </>
-        )}
-        {isGuest && (
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: 40,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View
+          style={{
+            backgroundColor: "#FFF",
+            borderRadius: 20,
+            paddingTop: 15,
+            paddingBottom: 5,
+            marginBottom: 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.05,
+            shadowRadius: 10,
+            elevation: 2,
+          }}
+        >
           <View
             style={{
-              backgroundColor: "#FFF3CD",
-              padding: 12,
-              borderRadius: 8,
+              width: 62,
+              height: 62,
+              borderRadius: 36,
+              backgroundColor: "#4F46E5",
+              alignItems: "center",
+              justifyContent: "center",
+              alignSelf: "center",
               marginBottom: 12,
             }}
           >
-            <Text style={{ color: "#856404", marginBottom: 6 }}>
-              Üyeliksiz moddasın. Bilgilerin sadece bu cihazda saklanır.
+            <Text
+              style={{
+                color: "#FFF",
+                fontSize: 28,
+                fontWeight: "700",
+              }}
+            >
+              {(name || user.username || "U").charAt(0).toUpperCase()}
+            </Text>
+          </View>
+
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 22,
+              fontWeight: "700",
+              color: "#111827",
+            }}
+          >
+            {user.name || "Kullanıcı"}
+          </Text>
+
+          {!!username && (
+            <Text
+              style={{
+                textAlign: "center",
+                color: "#6B7280",
+                marginTop: 4,
+              }}
+            >
+              @{user.username}
+            </Text>
+          )}
+
+          {!isGuest && (
+            <Text
+              style={{
+                textAlign: "center",
+                color: "#9CA3AF",
+                marginTop: 6,
+              }}
+            >
+              {user.email}
+            </Text>
+          )}
+        </View>
+
+        {isGuest && (
+          <View
+            style={{
+              backgroundColor: "#FFF8E6",
+              borderWidth: 1,
+              borderColor: "#FCD34D",
+              borderRadius: 16,
+              padding: 16,
+              marginBottom: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: "#92400E",
+                marginBottom: 12,
+                lineHeight: 20,
+              }}
+            >
+              Üyeliksiz moddasın. Bilgilerin yalnızca bu cihazda saklanır.
             </Text>
 
             <Button
@@ -106,35 +195,62 @@ export default function Profile() {
             />
           </View>
         )}
-        <Text style={styles.label}>İsim</Text>
-        <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
 
-        <Text style={styles.label}>Username</Text>
-        <Input
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-        />
-
-        <Text style={styles.label}>Seviye</Text>
-
-        <LevelPicker value={level} onChange={(v) => setLevel(v)} />
-
-        {loading ? (
-          <ActivityIndicator size="large" />
-        ) : (
-          <Button title="Kaydet" onPress={saveProfile} />
-        )}
-
-        <Button
-          title="Çıkış Yap"
-          variant="outline"
-          onPress={() => {
-            useAuthStore.getState().logout();
-            router.replace("/(auth)/login");
+        <View
+          style={{
+            backgroundColor: "#FFF",
+            borderRadius: 20,
+            padding: 20,
+            shadowColor: "#000",
+            shadowOpacity: 0.05,
+            shadowRadius: 10,
+            elevation: 2,
           }}
-        />
-      </View>
+        >
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "700",
+              marginBottom: 10,
+              color: "#111827",
+            }}
+          >
+            Hesap Bilgileri
+          </Text>
+
+          <Text style={styles.label}>İsim</Text>
+          <Input placeholder="Ad Soyad" value={name} onChangeText={setName} />
+
+          <Text style={styles.label}>Username</Text>
+          <Input
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+          />
+
+          <Text style={styles.label}>Seviye</Text>
+          <LevelPicker value={level} onChange={(v) => setLevel(v)} />
+
+          <View style={{ marginTop: 24 }}>
+            {loading ? (
+              <ActivityIndicator size="large" />
+            ) : (
+              <Button title="Değişiklikleri Kaydet" onPress={saveProfile} />
+            )}
+          </View>
+
+          <View style={{ marginTop: 12 }}>
+            <Button
+              title="Çıkış Yap"
+              variant="outline"
+              onPress={() => {
+                useAuthStore.getState().logout();
+                router.replace("/(auth)/login");
+              }}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -142,13 +258,16 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 24,
   },
   label: {
-    marginTop: 12,
-    marginBottom: 6,
     fontSize: 14,
-    color: "#666",
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 5,
+    marginTop: 7,
   },
   readonly: {
     padding: 12,

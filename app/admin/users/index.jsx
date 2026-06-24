@@ -14,6 +14,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import AdminGuard from "../../../src/components/AdminGuard";
@@ -21,6 +22,7 @@ import Button from "../../../src/components/Button";
 import PageHeader from "../../../src/components/PageHeader";
 import Select from "../../../src/components/Select";
 import { db } from "../../../src/services/firebase";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -28,6 +30,13 @@ export default function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [role, setRole] = useState("user");
   const [modalVisible, setModalVisible] = useState(false);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [levelFilter, setLevelFilter] = useState("ALL");
+  const LEVELS = ["ALL", "A1", "A2", "B1", "B2", "C1", "C2"];
+  const ROLES = ["ALL", "admin", "user"];
+  const hasFilters =
+    search.length > 0 || roleFilter !== "ALL" || levelFilter !== "ALL";
 
   useEffect(() => {
     loadUsers();
@@ -43,7 +52,7 @@ export default function AdminUsers() {
         snap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        }))
+        })),
       );
     } catch (e) {
       console.log("Admin users load error:", e);
@@ -61,7 +70,7 @@ export default function AdminUsers() {
       });
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === selectedUser.id ? { ...u, role } : u))
+        prev.map((u) => (u.id === selectedUser.id ? { ...u, role } : u)),
       );
       Toast.show({
         type: "success",
@@ -81,6 +90,20 @@ export default function AdminUsers() {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    const searchMatch = (user.email ?? "")
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const roleMatch =
+      roleFilter === "ALL" ? true : (user.role ?? "user") === roleFilter;
+
+    const levelMatch =
+      levelFilter === "ALL" ? true : user.level === levelFilter;
+
+    return searchMatch && roleMatch && levelMatch;
+  });
+
   if (loading) {
     return (
       <AdminGuard>
@@ -95,9 +118,98 @@ export default function AdminUsers() {
   return (
     <AdminGuard>
       <PageHeader title="Kullanıcılar" />
+      <View style={styles.filters}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} color="#6b7280" />
 
+          <TextInput
+            placeholder="Email ara..."
+            value={search}
+            onChangeText={setSearch}
+            style={styles.searchInput}
+          />
+
+          {search && (
+            <TouchableOpacity
+              onPress={() => {
+                setSearch("");
+              }}
+            >
+              <Ionicons
+                name="refresh-circle-outline"
+                size={24}
+                color="#2563eb"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+        <View style={styles.levelContainer}>
+          {ROLES.map((r) => {
+            const active = roleFilter === r;
+
+            return (
+              <TouchableOpacity
+                key={r}
+                onPress={() => setRoleFilter(r)}
+                style={[styles.levelButton, active && styles.levelButtonActive]}
+              >
+                <Text
+                  style={[
+                    styles.levelButtonText,
+                    active && styles.levelButtonTextActive,
+                  ]}
+                >
+                  {r === "ALL"
+                    ? "Tümü"
+                    : r.charAt(0).toUpperCase() + r.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <View style={styles.levelContainer}>
+          {LEVELS.map((l) => {
+            const active = levelFilter === l;
+
+            return (
+              <TouchableOpacity
+                key={l}
+                onPress={() => setLevelFilter(l)}
+                style={[styles.levelButton, active && styles.levelButtonActive]}
+              >
+                <Text
+                  style={[
+                    styles.levelButtonText,
+                    active && styles.levelButtonTextActive,
+                  ]}
+                >
+                  {l === "ALL" ? "Tümü" : l}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={styles.filterFooter}>
+          <Text style={styles.resultText}>
+            {filteredUsers.length} kullanıcı bulundu
+          </Text>
+
+          {hasFilters && (
+            <TouchableOpacity
+              onPress={() => {
+                setSearch("");
+                setRoleFilter("ALL");
+                setLevelFilter("ALL");
+              }}
+            >
+              <Text style={styles.clearFiltersText}>Temizle</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
       <FlatList
-        data={users}
+        data={filteredUsers}
         keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}
         renderItem={({ item }) => (
@@ -244,5 +356,79 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-end",
     gap: 12,
+  },
+  filters: {
+    padding: 16,
+    gap: 12,
+  },
+
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    paddingHorizontal: 12,
+  },
+
+  searchInput: {
+    flex: 1,
+    height: 48,
+  },
+
+  levelContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+
+  levelButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: "#f3f4f6",
+  },
+
+  levelButtonActive: {
+    backgroundColor: "#2563eb",
+  },
+
+  levelButtonText: {
+    color: "#374151",
+    fontWeight: "500",
+  },
+  levelButtonTextActive: {
+    color: "#fff",
+  },
+  resultText: {
+    fontSize: 13,
+    color: "#6b7280",
+  },
+  filterFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  clearFiltersButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  clearFiltersButtonDisabled: {
+    opacity: 0.5,
+  },
+
+  clearFiltersText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#2563eb",
+  },
+
+  clearFiltersTextDisabled: {
+    color: "#9ca3af",
   },
 });
