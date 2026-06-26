@@ -28,11 +28,22 @@ export default function AdminUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [level, setLevel] = useState("");
   const [role, setRole] = useState("user");
   const [modalVisible, setModalVisible] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
   const [levelFilter, setLevelFilter] = useState("ALL");
+  const LEVEL_OPTIONS = [
+    { label: "A1", value: "A1" },
+    { label: "A2", value: "A2" },
+    { label: "B1", value: "B1" },
+    { label: "B2", value: "B2" },
+    { label: "C1", value: "C1" },
+    { label: "C2", value: "C2" },
+  ];
   const LEVELS = ["ALL", "A1", "A2", "B1", "B2", "C1", "C2"];
   const ROLES = ["ALL", "admin", "user"];
   const hasFilters =
@@ -61,31 +72,46 @@ export default function AdminUsers() {
     }
   };
 
-  const saveRole = async () => {
+  const saveUser = async () => {
     if (!selectedUser) return;
 
     try {
       await updateDoc(doc(db, "users", selectedUser.id), {
+        email,
+        username,
+        level,
         role,
       });
 
       setUsers((prev) =>
-        prev.map((u) => (u.id === selectedUser.id ? { ...u, role } : u)),
+        prev.map((u) =>
+          u.id === selectedUser.id
+            ? {
+                ...u,
+                email,
+                username,
+                level,
+                role,
+              }
+            : u,
+        ),
       );
+
       Toast.show({
         type: "success",
         text1: "Başarılı",
-        text2: `"${selectedUser.email}" kullanıcısı başarıyla güncellendi.`,
-        visibilityTime: 2000,
+        text2: "Kullanıcı güncellendi.",
       });
+
       setModalVisible(false);
       setSelectedUser(null);
     } catch (e) {
-      console.log("Role update error:", e);
+      console.log(e);
+
       Toast.show({
         type: "error",
         text1: "Hata",
-        text2: "Kullanıcı rolü güncellenirken bir hata oluştu.",
+        text2: "Kullanıcı güncellenemedi.",
       });
     }
   };
@@ -216,7 +242,12 @@ export default function AdminUsers() {
           <TouchableOpacity
             onPress={() => {
               setSelectedUser(item);
+
+              setEmail(item.email ?? "");
+              setUsername(item.username ?? "");
+              setLevel(item.level ?? "");
               setRole(item.role ?? "user");
+
               setModalVisible(true);
             }}
           >
@@ -252,12 +283,32 @@ export default function AdminUsers() {
             <Text style={styles.modalTitle}>Kullanıcı Güncelle</Text>
 
             <Text style={styles.label}>Email</Text>
-            <Text style={styles.readonly}>
-              {selectedUser?.email ?? "Guest"}
-            </Text>
+
+            <TextInput
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+              placeholder="Email"
+            />
+
+            <Text style={styles.label}>Username</Text>
+
+            <TextInput
+              value={username}
+              onChangeText={setUsername}
+              style={styles.input}
+              placeholder="Username"
+            />
 
             <Text style={styles.label}>Seviye</Text>
-            <Text style={styles.readonly}>{selectedUser?.level ?? "-"}</Text>
+
+            <Select
+              title="Seviye"
+              placeholder="Seviye seç"
+              value={level}
+              onChange={setLevel}
+              options={LEVEL_OPTIONS}
+            />
 
             <Text style={styles.label}>Rol</Text>
             <Select
@@ -280,7 +331,7 @@ export default function AdminUsers() {
               />
               <Button
                 title="Kaydet"
-                onPress={saveRole}
+                onPress={saveUser}
                 variant="primary"
                 style={{ flex: 1 }}
               />
@@ -315,7 +366,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   label: {
-    width: 60,
+    width: 80,
     color: "#666",
   },
   value: {
@@ -372,7 +423,15 @@ const styles = StyleSheet.create({
     borderColor: "#e5e7eb",
     paddingHorizontal: 12,
   },
-
+  input: {
+    borderWidth: 1,
+    borderColor: "#DDD",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 48,
+    marginBottom: 16,
+    backgroundColor: "#FFF",
+  },
   searchInput: {
     flex: 1,
     height: 48,

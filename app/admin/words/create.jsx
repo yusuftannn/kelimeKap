@@ -1,6 +1,12 @@
 import { addDoc, collection, updateDoc } from "firebase/firestore";
 import { useState } from "react";
-import { View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Toast from "react-native-toast-message";
 import AdminGuard from "../../../src/components/AdminGuard";
 import Button from "../../../src/components/Button";
@@ -72,27 +78,112 @@ export default function CreateWord() {
     <AdminGuard>
       <PageHeader title="Yeni Kelime" />
 
-      <View style={{ padding: 20 }}>
-        <Input placeholder="EN Word" value={en} onChangeText={setEn} />
-        <Input placeholder="TR Word" value={tr} onChangeText={setTr} />
-        <Input
-          placeholder="Example EN"
-          value={exampleEn}
-          onChangeText={setExampleEn}
-        />
-        <Input
-          placeholder="Example TR"
-          value={exampleTr}
-          onChangeText={setExampleTr}
-        />
-        <LevelPicker value={level} onChange={setLevel} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 40,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: 20,
+              padding: 20,
+              shadowColor: "#000",
+              shadowOpacity: 0.08,
+              shadowRadius: 12,
+              shadowOffset: {
+                width: 0,
+                height: 4,
+              },
+              elevation: 4,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: "700",
+                color: "#111827",
+                marginBottom: 6,
+              }}
+            >
+              Yeni Kelime Ekle
+            </Text>
 
-        <Button
-          title={loading ? "Kaydediliyor..." : "Kaydet"}
-          onPress={save}
-          disabled={loading}
-        />
-      </View>
+            <Text
+              style={{
+                color: "#6B7280",
+                fontSize: 14,
+                marginBottom: 24,
+              }}
+            >
+              İngilizce kelimeyi ve örnek cümlelerini ekleyin.
+            </Text>
+
+            <View style={{ gap: 16 }}>
+              <Input
+                placeholder="🇺🇸 English Word"
+                value={en}
+                onChangeText={setEn}
+              />
+
+              <Input
+                placeholder="🇹🇷 Turkish Meaning"
+                value={tr}
+                onChangeText={setTr}
+              />
+
+              <Input
+                placeholder="Example Sentence (EN)"
+                value={exampleEn}
+                onChangeText={setExampleEn}
+              />
+
+              <Input
+                placeholder="Örnek Cümle (TR)"
+                value={exampleTr}
+                onChangeText={setExampleTr}
+              />
+            </View>
+
+            <View
+              style={{
+                marginTop: 28,
+                paddingTop: 20,
+                borderTopWidth: 1,
+                borderColor: "#E5E7EB",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  color: "#374151",
+                  marginBottom: 12,
+                }}
+              >
+                Seviye
+              </Text>
+
+              <LevelPicker value={level} onChange={setLevel} />
+            </View>
+
+            <View style={{ marginTop: 32 }}>
+              <Button
+                title={loading ? "Kaydediliyor..." : "Kelimeyi Kaydet"}
+                onPress={save}
+                disabled={loading}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AdminGuard>
   );
 }
