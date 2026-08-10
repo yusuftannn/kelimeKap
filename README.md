@@ -2,6 +2,12 @@
 
 KelimeKap, kullanıcıların seviyelerine göre İngilizce kelimeler öğrenmesini ve tekrar etmesini sağlayan, modern ve mobil öncelikli bir kelime öğrenme uygulamasıdır. Kullanıcılar seviyelerini seçebilir, kelime kartlarıyla çalışabilir, kelimeleri kaydedebilir ve istatistiklerini takip edebilir.
 
+## 📱 Uygulama Ekranları
+
+<p align="center">
+  <img src="/screenshots/kelimekap-preview.png" alt="KelimeKap Uygulama Ekranları" width="100%" />
+</p>
+
 ## Özellikler
 
 - Seviye tabanlı kelime öğrenme
