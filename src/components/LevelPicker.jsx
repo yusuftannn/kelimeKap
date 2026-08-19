@@ -22,15 +22,6 @@ export default function LevelPicker({
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (externalLevels) {
-      setLevels(normalizeLevels(externalLevels));
-      setLoading(false);
-    } else {
-      load();
-    }
-  }, [externalLevels, load]);
-
   const load = useCallback(async () => {
     try {
       const data = await LevelService.getLevels();
@@ -47,6 +38,15 @@ export default function LevelPicker({
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (externalLevels) {
+      setLevels(normalizeLevels(externalLevels));
+      setLoading(false);
+    } else {
+      load();
+    }
+  }, [externalLevels, load]);
 
   const normalizeLevels = (levels) => {
     if (!levels?.length) return [];

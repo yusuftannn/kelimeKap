@@ -96,18 +96,29 @@ export const WordService = {
     const snap = await getDocs(q);
     if (snap.empty) return [];
 
-    const wordIds = snap.docs.map((d) => d.data().wordId);
+    const wordIds = [...new Set(snap.docs.map((d) => d.data().wordId))];
+    const chunks: string[][] = [];
 
-    const wordsSnap = await getDocs(
-      query(collection(db, "words"), where("__name__", "in", wordIds)),
-    );
+    for (let i = 0; i < wordIds.length; i += 10) {
+      chunks.push(wordIds.slice(i, i + 10));
+    }
 
-    return wordsSnap.docs.map(
-      (doc: QueryDocumentSnapshot<DocumentData>): Word => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Word, "id">),
+    const words = await Promise.all(
+      chunks.map(async (ids) => {
+        const wordsSnap = await getDocs(
+          query(collection(db, "words"), where("__name__", "in", ids)),
+        );
+
+        return wordsSnap.docs.map(
+          (doc: QueryDocumentSnapshot<DocumentData>): Word => ({
+            id: doc.id,
+            ...(doc.data() as Omit<Word, "id">),
+          }),
+        );
       }),
     );
+
+    return words.flat();
   },
 
   async removeSavedWord(userId: string, wordId: string): Promise<void> {
