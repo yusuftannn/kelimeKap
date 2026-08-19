@@ -1,4 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import * as Speech from "expo-speech";
 import { useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -14,6 +15,14 @@ export default function WordCard({ front, back, exampleEn, exampleTr }) {
     }).start();
 
     setFlipped(!flipped);
+  };
+
+  const speakWord = () => {
+    Speech.stop();
+    Speech.speak(front, {
+      language: "en-US",
+      rate: 0.85,
+    });
   };
 
   const frontInterpolate = animatedValue.interpolate({
@@ -43,6 +52,18 @@ export default function WordCard({ front, back, exampleEn, exampleTr }) {
           <View style={styles.entr}>
             <Text style={styles.hintText}>EN</Text>
           </View>
+          <Pressable
+            accessibilityLabel="Kelimenin telaffuzunu dinle"
+            accessibilityRole="button"
+            hitSlop={8}
+            onPress={(event) => {
+              event.stopPropagation();
+              speakWord();
+            }}
+            style={styles.audioButton}
+          >
+            <MaterialIcons name="volume-up" size={22} color="#2563EB" />
+          </Pressable>
           <View style={styles.hint}>
             <MaterialIcons name="touch-app" size={20} color="#999" />
           </View>
@@ -115,6 +136,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     opacity: 0.6,
+  },
+  audioButton: {
+    position: "absolute",
+    top: 10,
+    right: 12,
+    padding: 4,
   },
   hintText: {
     marginLeft: 4,
