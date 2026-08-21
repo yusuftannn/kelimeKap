@@ -22,7 +22,7 @@ export default function Home() {
   if (!user) {
     return (
       <View style={{ flex: 1 }}>
-        <PageHeader title="KelimeKap" showBack={false} />
+        <PageHeader title="KelimeKap" showBack={false} showMenu />
         <View style={styles.container}>
           <Text>Yükleniyor...</Text>
         </View>
@@ -32,7 +32,7 @@ export default function Home() {
 
   return (
     <View style={{ flex: 1 }}>
-      <PageHeader title="KelimeKap" showBack={false} />
+      <PageHeader title="KelimeKap" showBack={false} showMenu />
       <View style={styles.container}>
         <Image style={styles.img} source={homeImg} />
         <View style={styles.content}>

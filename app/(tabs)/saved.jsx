@@ -89,7 +89,7 @@ export default function Saved() {
 
   return (
     <View style={{ flex: 1 }}>
-      <PageHeader title="Kaydedilenler" />
+      <PageHeader title="Kaydedilenler" showMenu />
       <View style={styles.container}>
         <TextInput
           style={styles.search}

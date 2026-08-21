@@ -62,7 +62,7 @@ export default function Stats() {
 
   return (
     <View style={styles.screen}>
-      <PageHeader title="İstatistikler" />
+      <PageHeader title="İstatistikler" showMenu />
 
       <View style={styles.container}>
         <AccuracyCard value={accuracy} />

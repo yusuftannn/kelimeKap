@@ -84,7 +84,7 @@ export default function Profile() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F7F8FA" }}>
-      <PageHeader title="Profil" />
+      <PageHeader title="Profil" showMenu />
 
       <ScrollView
         style={{ flex: 1 }}

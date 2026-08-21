@@ -230,7 +230,7 @@ export default function WordCardScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <PageHeader title="Öğren" showBack={false} />
+      <PageHeader title="Öğren" showBack={false} showMenu />
       <View style={styles.container}>
         <View style={styles.progressHeader}>
           <Text style={styles.progressText}>
