@@ -2,8 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Menu from "./Menu";
 
-export default function PageHeader({ title, showBack = true }) {
+export default function PageHeader({ title, showBack = true, showMenu = false }) {
   const router = useRouter();
 
   return (
@@ -19,7 +20,7 @@ export default function PageHeader({ title, showBack = true }) {
 
         <Text style={styles.title}>{title}</Text>
 
-        <View style={{ width: 26 }} />
+        {showMenu ? <Menu /> : <View style={{ width: 26 }} />}
       </View>
 
       <View style={styles.divider} />
